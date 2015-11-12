@@ -16,26 +16,20 @@
  */
 package com.indoqa.solr.spatial.corridor;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.lucene.queries.function.ValueSource;
+
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LinearLocation;
-import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
 public class CorridorDistanceValueSourceParser extends AbstractCorridorValueSourceParser {
 
     @Override
-    protected String getDescription() {
-        return "corridorDistance()";
+    protected ValueSource createValueSource(LineString lineString, ValueSource locationValueSource) {
+        return new CorridorDistanceValueSource(lineString, locationValueSource);
     }
 
     @Override
-    protected double getValue(LineString lineString, Point point) {
-        LocationIndexedLine lineRef = new LocationIndexedLine(lineString);
-        LinearLocation loc = lineRef.project(point.getCoordinate());
-
-        Coordinate extractPoint = lineRef.extractPoint(loc);
-        return extractPoint.distance(point.getCoordinate()) * CorridorConstants.WGS84_TO_METERS_FACTOR;
+    protected String getDescription() {
+        return "corridorDistance()";
     }
 
 }

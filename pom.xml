@@ -17,13 +17,15 @@
 	<packaging>jar</packaging>
 
 	<groupId>com.indoqa.solr</groupId>
-	<artifactId>corridor-search</artifactId>
+	<artifactId>spatial-corridor</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 
-	<name>Solr Corridor Search Plugin</name>
+	<name>Solr Spatial Corridor Search</name>
 
 	<properties>
 		<solr-version>4.9.1</solr-version>
+		<jts-version>1.13</jts-version>
+		<junit-version>4.10</junit-version>
 	</properties>
 
 	<dependencies>
@@ -45,14 +47,14 @@
 		<dependency>
 			<groupId>com.vividsolutions</groupId>
 			<artifactId>jts</artifactId>
-			<version>1.13</version>
+			<version>${jts-version}</version>
 			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.10</version>
+			<version>${junit-version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -71,9 +73,9 @@
 	</build>
 
 	<scm>
-		<connection>scm:git:git@github.com:Indoqa/solr-corridor-search.git</connection>
-		<developerConnection>scm:git:git@github.com:Indoqa/solr-corridor-search.git</developerConnection>
-		<url>https://github.com/Indoqa/solr-corridor-search</url>
+		<connection>scm:git:git@github.com:Indoqa/solr-spatial-corridor.git</connection>
+		<developerConnection>scm:git:git@github.com:Indoqa/solr-spatial-corridor.git</developerConnection>
+		<url>https://github.com/Indoqa/solr-spatial-corridor</url>
 		<tag>HEAD</tag>
 	</scm>
 
