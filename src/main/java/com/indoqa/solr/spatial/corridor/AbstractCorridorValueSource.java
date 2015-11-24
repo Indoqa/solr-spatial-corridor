@@ -1,3 +1,19 @@
+/*
+ * Licensed to the Indoqa Software Design und Beratung GmbH (Indoqa) under
+ * one or more contributor license agreements. See the NOTICE file distributed
+ * with this work for additional information regarding copyright ownership.
+ * Indoqa licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.indoqa.solr.spatial.corridor;
 
 import java.io.IOException;
@@ -47,10 +63,11 @@ public abstract class AbstractCorridorValueSource extends ValueSource {
         return true;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public final FunctionValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
         FunctionValues locationValues = this.loctionValueSource.getValues(context, readerContext);
-        return new CorridorDocValues(this, this.lineString, locationValues);
+        return new CorridorDocValues(this, locationValues);
     }
 
     @Override
@@ -63,17 +80,19 @@ public abstract class AbstractCorridorValueSource extends ValueSource {
         return result;
     }
 
-    protected abstract double getValue(LineString lineString, Point point);
+    protected LineString getLineString() {
+        return this.lineString;
+    }
+
+    protected abstract double getValue(Point point);
 
     private final class CorridorDocValues extends DoubleDocValues {
 
-        private LineString lineString;
         private FunctionValues locationValues;
 
-        protected CorridorDocValues(ValueSource vs, LineString lineString, FunctionValues locationValues) {
+        protected CorridorDocValues(ValueSource vs, FunctionValues locationValues) {
             super(vs);
 
-            this.lineString = lineString;
             this.locationValues = locationValues;
         }
 
@@ -83,8 +102,9 @@ public abstract class AbstractCorridorValueSource extends ValueSource {
 
             this.locationValues.doubleVal(docId, values);
 
-            Point point = GeometryFactory.createPointFromInternalCoord(new Coordinate(values[1], values[0]), this.lineString);
-            return AbstractCorridorValueSource.this.getValue(this.lineString, point);
+            Point point = GeometryFactory.createPointFromInternalCoord(new Coordinate(values[1], values[0]),
+                AbstractCorridorValueSource.this.getLineString());
+            return AbstractCorridorValueSource.this.getValue(point);
         }
 
     }
