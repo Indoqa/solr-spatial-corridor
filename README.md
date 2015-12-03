@@ -5,7 +5,7 @@ This plugin offers functions to filter and sort results alongside a geographical
   * corridorDistance(latLonField): Normal (shortest) distance between the result and the route
   * corridorPosition(latLonField): The distance on the route between the start point and the projection of the result (= where the normal distance line intersects the route)
 
-![Solr spation corridor legend](/docs/corridor_legend.png)
+![Solr spatial corridor legend](/docs/solr_spatial_corridor_legend.png)
 
 ## Example Use Cases
 
@@ -13,7 +13,7 @@ This plugin offers functions to filter and sort results alongside a geographical
 
 "Find all results with a maximum normal distance of 2 kilometers to the route"
 
-![Solr spation corridor filter](/docs/corridor_filter.png)
+![Solr spatial corridor filter](/docs/solr_spatial_corridor_filter.png)
 
 ```
 ?q={!corridor field=latLon buffer=2}  // a shortcut for {!frange l=0 u=2}lanLon
@@ -24,7 +24,7 @@ This plugin offers functions to filter and sort results alongside a geographical
 
 "Show all results, sort them by normal distance"
 
-![Solr spation distance sort](/docs/corridor_sort_distance.png)
+![Solr spatial distance sort](/docs/solr_spatial_corridor_sort_distance.png)
 
 ```
 ?q=*:*
@@ -36,7 +36,7 @@ This plugin offers functions to filter and sort results alongside a geographical
 
 "Show all results, sort them by distance from startpoint alongside the route"
 
-![Solr spation position sort](/docs/corridor_sort_position.png)
+![Solr spatial position sort](/docs/solr_spatial_corridor_sort_position.png)
 
 ```
 ?q=*:*
