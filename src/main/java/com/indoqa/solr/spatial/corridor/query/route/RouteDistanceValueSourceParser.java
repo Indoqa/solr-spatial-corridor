@@ -14,27 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.indoqa.solr.spatial.corridor;
+package com.indoqa.solr.spatial.corridor.query.route;
 
 import org.apache.lucene.queries.function.ValueSource;
-import org.apache.solr.search.FunctionQParser;
-import org.apache.solr.search.SyntaxError;
-import org.apache.solr.search.ValueSourceParser;
 
 import com.vividsolutions.jts.geom.LineString;
 
-public abstract class AbstractCorridorValueSourceParser extends ValueSourceParser {
+public class RouteDistanceValueSourceParser extends AbstractRouteQueryValueSourceParser {
 
     @Override
-    public ValueSource parse(FunctionQParser fp) throws SyntaxError {
-        LineString lineString = LineStringUtils.parse(fp.getParam("corridor.route"), fp.getReq().getSearcher());
-        ValueSource locationValueSource = fp.parseValueSource();
-
-        return this.createValueSource(lineString, locationValueSource);
+    protected ValueSource createValueSource(LineString lineString, ValueSource locationValueSource) {
+        return new RouteDistanceValueSource(lineString, locationValueSource);
     }
 
-    protected abstract ValueSource createValueSource(LineString lineString, ValueSource locationValueSource);
-
-    protected abstract String getDescription();
+    @Override
+    protected String getDescription() {
+        return "corridorDistance()";
+    }
 
 }

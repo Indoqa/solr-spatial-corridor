@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.indoqa.solr.spatial.corridor;
+package com.indoqa.solr.spatial.corridor.query.route;
 
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.Query;
@@ -28,9 +28,9 @@ import org.apache.solr.search.function.ValueSourceRangeFilter;
 
 import com.vividsolutions.jts.geom.LineString;
 
-public class CorridorQueryParser extends QParser {
+public class RouteQueryParser extends QParser {
 
-    public CorridorQueryParser(String qstr, SolrParams localParams, SolrParams params, SolrQueryRequest req) {
+    public RouteQueryParser(String qstr, SolrParams localParams, SolrParams params, SolrQueryRequest req) {
         super(qstr, localParams, params, req);
     }
 
@@ -41,7 +41,7 @@ public class CorridorQueryParser extends QParser {
         LineString lineString = this.parseLineString();
         String buffer = this.parseBuffer();
 
-        CorridorDistanceValueSource corridorDistanceValueSource = new CorridorDistanceValueSource(lineString, locationValueSource);
+        RouteDistanceValueSource corridorDistanceValueSource = new RouteDistanceValueSource(lineString, locationValueSource);
         ValueSourceRangeFilter filter = new ValueSourceRangeFilter(corridorDistanceValueSource, "0", buffer, true, true);
         return new FunctionRangeQuery(filter);
     }

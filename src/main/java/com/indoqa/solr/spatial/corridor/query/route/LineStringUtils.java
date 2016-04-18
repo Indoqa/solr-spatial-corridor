@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.indoqa.solr.spatial.corridor;
+package com.indoqa.solr.spatial.corridor.query.route;
 
 import org.apache.solr.search.SolrCache;
 import org.apache.solr.search.SolrIndexSearcher;

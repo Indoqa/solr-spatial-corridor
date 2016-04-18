@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.indoqa.solr.spatial.corridor;
+package com.indoqa.solr.spatial.corridor.query.route;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,23 +30,23 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 
-public abstract class AbstractCorridorValueSource extends ValueSource {
+public abstract class AbstractRouteQueryValueSource extends ValueSource {
 
     private LineString lineString;
     private ValueSource loctionValueSource;
 
-    protected AbstractCorridorValueSource(LineString lineString, ValueSource loctionValueSource) {
+    protected AbstractRouteQueryValueSource(LineString lineString, ValueSource loctionValueSource) {
         this.lineString = lineString;
         this.loctionValueSource = loctionValueSource;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof AbstractCorridorValueSource)) {
+        if (!(o instanceof AbstractRouteQueryValueSource)) {
             return false;
         }
 
-        AbstractCorridorValueSource other = (AbstractCorridorValueSource) o;
+        AbstractRouteQueryValueSource other = (AbstractRouteQueryValueSource) o;
 
         if (ObjectUtils.notEqual(other.lineString, this.lineString)) {
             return false;
@@ -103,8 +103,8 @@ public abstract class AbstractCorridorValueSource extends ValueSource {
             this.locationValues.doubleVal(docId, values);
 
             Point point = GeometryFactory.createPointFromInternalCoord(new Coordinate(values[1], values[0]),
-                AbstractCorridorValueSource.this.getLineString());
-            return AbstractCorridorValueSource.this.getValue(point);
+                AbstractRouteQueryValueSource.this.getLineString());
+            return AbstractRouteQueryValueSource.this.getValue(point);
         }
 
     }

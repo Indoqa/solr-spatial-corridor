@@ -14,17 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.indoqa.solr.spatial.corridor;
+package com.indoqa.solr.spatial.corridor.query.route;
 
 import org.apache.lucene.queries.function.ValueSource;
 
 import com.vividsolutions.jts.geom.LineString;
 
-public class CorridorPositionValueSourceParser extends AbstractCorridorValueSourceParser {
+public class RoutePositionValueSourceParser extends AbstractRouteQueryValueSourceParser {
 
     @Override
     protected ValueSource createValueSource(LineString lineString, ValueSource locationValueSource) {
-        return new CorridorPositionValueSource(lineString, locationValueSource);
+        return new RoutePositionValueSource(lineString, locationValueSource);
     }
 
     @Override

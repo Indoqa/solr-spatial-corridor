@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.indoqa.solr.spatial.corridor;
+package com.indoqa.solr.spatial.corridor.query.route;
 
 import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
 
@@ -25,9 +25,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
-public class CorridorPositionValueSource extends AbstractCorridorValueSource {
+public class RoutePositionValueSource extends AbstractRouteQueryValueSource {
 
-    protected CorridorPositionValueSource(LineString lineString, ValueSource loctionValueSource) {
+    protected RoutePositionValueSource(LineString lineString, ValueSource loctionValueSource) {
         super(lineString, loctionValueSource);
     }
 
