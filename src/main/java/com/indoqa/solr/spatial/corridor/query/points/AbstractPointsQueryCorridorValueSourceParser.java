@@ -30,8 +30,6 @@ import com.vividsolutions.jts.io.WKTReader;
 
 public abstract class AbstractPointsQueryCorridorValueSourceParser extends ValueSourceParser {
 
-    private static WKTReader wktReader = new WKTReader();
-
     @Override
     public ValueSource parse(FunctionQParser fp) throws SyntaxError {
         List<Point> queryPoints = new ArrayList<>();
@@ -52,9 +50,9 @@ public abstract class AbstractPointsQueryCorridorValueSourceParser extends Value
 
     private Point readPoint(String queryPointParameter) throws SyntaxError {
         try {
-            return (Point) wktReader.read(queryPointParameter);
+            return (Point) new WKTReader().read(queryPointParameter);
         } catch (ParseException e) {
-            throw new SyntaxError("Parameter corridor.point must be set at least once and a valid Point!");
+            throw new SyntaxError("Parameter corridor.point must be set at least once and a valid Point!", e);
         }
     }
 

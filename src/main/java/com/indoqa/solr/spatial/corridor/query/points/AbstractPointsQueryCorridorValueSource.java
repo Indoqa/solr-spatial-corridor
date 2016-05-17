@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
@@ -32,8 +32,6 @@ import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
 public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource {
-
-    protected static final WKTReader WKT_READER = new WKTReader();
 
     private List<Point> queryPoints;
     private ValueSource routeValueSource;
@@ -72,7 +70,7 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
 
     @SuppressWarnings("rawtypes")
     @Override
-    public final FunctionValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
+    public final FunctionValues getValues(Map context, LeafReaderContext readerContext) throws IOException {
         FunctionValues locationValues = this.routeValueSource.getValues(context, readerContext);
         return new InverseCorridorDocValues(this, locationValues);
     }
@@ -81,9 +79,9 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.routeValueSource == null) ? 0 : this.routeValueSource.hashCode());
-        result = prime * result + ((this.queryPoints == null) ? 0 : this.queryPoints.hashCode());
-        result = prime * result + ((this.description() == null) ? 0 : this.description().hashCode());
+        result = prime * result + (this.routeValueSource == null ? 0 : this.routeValueSource.hashCode());
+        result = prime * result + (this.queryPoints == null ? 0 : this.queryPoints.hashCode());
+        result = prime * result + (this.description() == null ? 0 : this.description().hashCode());
         return result;
     }
 
@@ -103,13 +101,17 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
         public double doubleVal(int docId) {
             String routeAsString = this.routeValues.strVal(docId);
 
+            if (routeAsString == null || routeAsString.isEmpty()) {
+                return -1;
+            }
+
             LineString route = this.parseLineString(routeAsString);
             return AbstractPointsQueryCorridorValueSource.this.getValue(route);
         }
 
         private LineString parseLineString(String routeAsString) {
             try {
-                return (LineString) WKT_READER.read(routeAsString);
+                return (LineString) new WKTReader().read(routeAsString);
             } catch (ParseException e) {
                 throw new IllegalStateException(e);
             }

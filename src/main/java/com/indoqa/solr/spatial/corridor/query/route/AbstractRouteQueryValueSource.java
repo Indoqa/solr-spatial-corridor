@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.lucene.index.AtomicReaderContext;
+import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
@@ -65,7 +65,7 @@ public abstract class AbstractRouteQueryValueSource extends ValueSource {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public final FunctionValues getValues(Map context, AtomicReaderContext readerContext) throws IOException {
+    public final FunctionValues getValues(Map context, LeafReaderContext readerContext) throws IOException {
         FunctionValues locationValues = this.loctionValueSource.getValues(context, readerContext);
         return new CorridorDocValues(this, locationValues);
     }
@@ -74,9 +74,9 @@ public abstract class AbstractRouteQueryValueSource extends ValueSource {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.loctionValueSource == null) ? 0 : this.loctionValueSource.hashCode());
-        result = prime * result + ((this.lineString == null) ? 0 : this.lineString.hashCode());
-        result = prime * result + ((this.description() == null) ? 0 : this.description().hashCode());
+        result = prime * result + (this.loctionValueSource == null ? 0 : this.loctionValueSource.hashCode());
+        result = prime * result + (this.lineString == null ? 0 : this.lineString.hashCode());
+        result = prime * result + (this.description() == null ? 0 : this.description().hashCode());
         return result;
     }
 
