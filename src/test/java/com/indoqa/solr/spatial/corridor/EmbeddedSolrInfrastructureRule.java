@@ -1,15 +1,18 @@
 package com.indoqa.solr.spatial.corridor;
 
+import static org.apache.solr.core.CoreDescriptor.CORE_CONFIG;
 import static org.apache.solr.core.CoreDescriptor.CORE_DATADIR;
+import static org.apache.solr.core.CoreDescriptor.CORE_SCHEMA;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.core.CoreContainer;
-import org.apache.solr.core.CoreDescriptor;
 import org.apache.solr.core.NodeConfig;
 import org.apache.solr.core.NodeConfig.NodeConfigBuilder;
 import org.apache.solr.core.SolrCore;
@@ -62,23 +65,21 @@ public class EmbeddedSolrInfrastructureRule extends ExternalResource {
         if (this.initialized) {
             return;
         }
-        SolrResourceLoader loader = new SolrResourceLoader(getNormalizedPath("."));
+
+        SolrResourceLoader loader = new SolrResourceLoader(Paths.get(getNormalizedPath(".")));
         NodeConfig nodeConfig = new NodeConfigBuilder(null, loader).build();
 
         CoreContainer container = new CoreContainer(nodeConfig);
         container.load();
 
-        Properties properties = new Properties();
-        properties.setProperty(CORE_DATADIR, getNormalizedPath("./target/test-core"));
+        Map<String, String> properties = new HashMap<String, String>();
+        properties.put(CORE_DATADIR, getNormalizedPath("./target/test-core"));
+        properties.put(CORE_CONFIG, instanceDir + "/conf/solrconfig.xml");
+        properties.put(CORE_SCHEMA, instanceDir + "/conf/schema.xml");
 
-        properties.setProperty(CoreDescriptor.CORE_CONFIG, instanceDir + "/conf/solrconfig.xml");
-        properties.setProperty(CoreDescriptor.CORE_SCHEMA, instanceDir + "/conf/schema.xml");
-
-        CoreDescriptor coreDescriptor = new CoreDescriptor(container, "Embedded Core", instanceDir, properties);
-        SolrCore core = container.create(coreDescriptor);
+        SolrCore core = container.create("Embedded-Core", loader.getInstancePath(), properties);
 
         this.embeddedSolrServer = new EmbeddedSolrServer(container, core.getName());
         this.initialized = true;
     }
-
 }
