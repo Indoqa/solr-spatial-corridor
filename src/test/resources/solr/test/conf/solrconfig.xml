@@ -250,5 +250,6 @@
     <valueSourceParser name="corridorDistance" class="com.indoqa.solr.spatial.corridor.query.route.RouteDistanceValueSourceParser" />
     <valueSourceParser name="corridorPosition" class="com.indoqa.solr.spatial.corridor.query.route.RoutePositionValueSourceParser" />
     <valueSourceParser name="pointsDistance"   class="com.indoqa.solr.spatial.corridor.query.points.PointsDistanceValueSourceParser" />
+    <valueSourceParser name="pointsDirection" class="com.indoqa.solr.spatial.corridor.direction.DirectionValueSourceParser" />
     
 </config>
