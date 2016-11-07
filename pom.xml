@@ -86,6 +86,21 @@
           <target>1.8</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/bin/*</exclude>
+            <exclude>README.md</exclude>
+            <exclude>CONTRIBUTORS.txt</exclude>
+            <exclude>**/_rest_managed.json</exclude>
+            <exclude>**/write.lock</exclude>
+            <exclude>**/core.properties</exclude>
+            <exclude>**/managed-schema</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
