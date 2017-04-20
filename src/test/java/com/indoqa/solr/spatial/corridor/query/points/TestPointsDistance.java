@@ -34,6 +34,7 @@ import com.indoqa.solr.spatial.corridor.EmbeddedSolrInfrastructureRule;
 public class TestPointsDistance {
 
     private static final String SOLR_FIELD_ID = "id";
+    private static final String SOLR_FIELD_POINT_POSITION = "position";
 
     private static final String DOCUMENT_ID_1 = "id-1";
 
@@ -45,6 +46,7 @@ public class TestPointsDistance {
         SolrQuery query = new SolrQuery("{!frange l=0 u=0.00001}pointsDistance(geo)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41654 48.19311)");
+        query.addField(SOLR_FIELD_ID);
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
@@ -81,6 +83,20 @@ public class TestPointsDistance {
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
+    }
+
+    @Test
+    public void pointsPositionMatch() throws SolrServerException, IOException {
+        SolrQuery query = new SolrQuery("{!frange l=0 u=0.01}pointsDistance(geo)");
+        query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.point", "POINT(16.41618 48.19288)");
+        query.addField(SOLR_FIELD_ID);
+        query.addField(SOLR_FIELD_POINT_POSITION + ":pointsPosition(geo)");
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+        assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
+        assertEquals(0.0475, (double) response.getResults().get(0).getFieldValue(SOLR_FIELD_POINT_POSITION), 0.00009);
     }
 
     @Before
