@@ -24,6 +24,7 @@ import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.SyntaxError;
 import org.apache.solr.search.ValueSourceParser;
 
+import com.indoqa.solr.spatial.corridor.LineStringValueSource;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
@@ -39,7 +40,7 @@ public abstract class AbstractPointsQueryCorridorValueSourceParser extends Value
             queryPoints.add(this.readPoint(queryPointParameter));
         }
 
-        ValueSource routeValueSource = fp.parseValueSource();
+        ValueSource routeValueSource = new LineStringValueSource(fp.parseArg());
 
         return this.createValueSource(queryPoints, routeValueSource);
     }
