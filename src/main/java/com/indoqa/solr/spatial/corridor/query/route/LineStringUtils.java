@@ -16,6 +16,8 @@
  */
 package com.indoqa.solr.spatial.corridor.query.route;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.apache.solr.search.SolrCache;
 import org.apache.solr.search.SolrIndexSearcher;
 import org.apache.solr.search.SyntaxError;
@@ -24,33 +26,42 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
+import java.util.concurrent.TimeUnit;
+
 public final class LineStringUtils {
 
     private static WKTReader wktReader = new WKTReader();
 
+    static {
+        cache = Caffeine.newBuilder()
+                .maximumSize(100000)
+                .expireAfterAccess(24, TimeUnit.HOURS)
+                .build(key -> parseWkt(key));
+    }
+
+    private static LoadingCache<String, LineString> cache;
+
     @SuppressWarnings("unchecked")
-    public static LineString parse(String corridorLineString, SolrIndexSearcher indexSearcher) throws SyntaxError {
+    public static LineString parse(String corridorLineString)  {
         if (corridorLineString == null) {
-            throw new SyntaxError("Parameter corridor.route must be set and a valid LineString!");
+            return null;
         }
 
-        SolrCache<String, LineString> lineStringCache = indexSearcher.getCache("corridorLineStrings");
-
-        LineString lineString = lineStringCache.get(corridorLineString);
+        LineString lineString = cache.get(corridorLineString);
 
         if (lineString == null) {
             lineString = parseWkt(corridorLineString);
-            lineStringCache.put(corridorLineString, lineString);
+            cache.put(corridorLineString, lineString);
         }
 
         return lineString;
     }
 
-    private static LineString parseWkt(String corridorLineString) throws SyntaxError {
+    private static LineString parseWkt(String corridorLineString) {
         try {
             return (LineString) wktReader.read(corridorLineString);
         } catch (ParseException e) {
-            throw new SyntaxError("corridor.route is no valid WKT LineString!");
+            throw new IllegalStateException("corridor.route is no valid WKT LineString!");
         }
     }
 }

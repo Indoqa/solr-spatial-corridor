@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.indoqa.solr.spatial.corridor.query.route.LineStringUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
@@ -105,17 +106,8 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
                 return -1;
             }
 
-            LineString route = this.parseLineString(routeAsString);
+            LineString route = LineStringUtils.parse(routeAsString);
             return AbstractPointsQueryCorridorValueSource.this.getValue(route);
         }
-
-        private LineString parseLineString(String routeAsString) {
-            try {
-                return (LineString) new WKTReader().read(routeAsString);
-            } catch (ParseException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
     }
 }
