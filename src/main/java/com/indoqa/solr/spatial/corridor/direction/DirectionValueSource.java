@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
@@ -29,8 +30,6 @@ import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
@@ -140,17 +139,15 @@ public class DirectionValueSource extends ValueSource {
                 return -1;
             }
 
-            LineString route = this.parseLineString(routeAsString);
+            LineString route = LineStringUtils.parseOrGet(routeAsString);
+
+            if(route == null){
+                String[] lineString = new String[1];
+                this.routeValues.strVal(docId, lineString);
+                route = LineStringUtils.parseOrGet(lineString[0]);
+            }
+
             return DirectionValueSource.this.getValue(route);
         }
-
-        private LineString parseLineString(String routeAsString) {
-            try {
-                return (LineString) new WKTReader().read(routeAsString);
-            } catch (ParseException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-
     }
 }

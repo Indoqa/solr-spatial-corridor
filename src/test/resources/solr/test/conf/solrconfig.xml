@@ -27,7 +27,6 @@
 
   <jmx />
   <updateHandler class="solr.DirectUpdateHandler2">
-
     <updateLog>
       <str name="dir">${solr.ulog.dir:}</str>
     </updateLog>
@@ -262,5 +261,12 @@
     <valueSourceParser name="pointsDistance"   class="com.indoqa.solr.spatial.corridor.query.points.PointsDistanceValueSourceParser" />
     <valueSourceParser name="pointsPosition"   class="com.indoqa.solr.spatial.corridor.query.points.PointsPositionValueSourceParser" />
     <valueSourceParser name="pointsDirection" class="com.indoqa.solr.spatial.corridor.direction.DirectionValueSourceParser" />
-    
+
+    <updateRequestProcessorChain name="linestringHashCalculation" default="true">
+      <processor class="com.indoqa.solr.spatial.corridor.processor.LinestringHashUpdateProcessorFactory">
+        <str name="linestringFieldName">geo</str>
+        <str name="hashFieldName">geoHash</str>
+      </processor>
+      <processor class="solr.RunUpdateProcessorFactory" />
+    </updateRequestProcessorChain>
 </config>

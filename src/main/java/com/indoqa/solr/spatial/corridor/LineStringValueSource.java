@@ -25,10 +25,12 @@ import org.apache.lucene.queries.function.ValueSource;
 
 public class LineStringValueSource extends ValueSource {
 
-    private String fieldName;
+    private String linestringFieldName;
+    private String hashFieldName;
 
-    public LineStringValueSource(String fieldName) {
-        this.fieldName = fieldName;
+    public LineStringValueSource(String linestringFieldName, String hashFieldName) {
+        this.linestringFieldName = linestringFieldName;
+        this.hashFieldName = hashFieldName;
     }
 
     @Override
@@ -44,12 +46,12 @@ public class LineStringValueSource extends ValueSource {
     @SuppressWarnings("rawtypes")
     @Override
     public FunctionValues getValues(Map context, LeafReaderContext readerContext) throws IOException {
-        return new LineStringFunctionValues(this.fieldName, readerContext);
+        return new LineStringFunctionValues(this.linestringFieldName, this.hashFieldName, readerContext);
     }
 
     @Override
     public int hashCode() {
-        return ("linestring" + this.fieldName).hashCode();
+        return ("linestring" + this.linestringFieldName + this.hashFieldName).hashCode();
     }
 
 }

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.indoqa.solr.spatial.corridor.query.route.LineStringUtils;
+import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
@@ -29,8 +29,6 @@ import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
 
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
 
 public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource {
 
@@ -106,7 +104,7 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
                 return -1;
             }
 
-            LineString route = LineStringUtils.parse(routeAsString);
+            LineString route = LineStringUtils.parseOrGet(routeAsString);
             return AbstractPointsQueryCorridorValueSource.this.getValue(route);
         }
     }

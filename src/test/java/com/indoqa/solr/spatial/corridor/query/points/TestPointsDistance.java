@@ -87,11 +87,11 @@ public class TestPointsDistance {
 
     @Test
     public void pointsPositionMatch() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=0.01}pointsDistance(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=0.01}pointsDistance(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41618 48.19288)");
         query.addField(SOLR_FIELD_ID);
-        query.addField(SOLR_FIELD_POINT_POSITION + ":pointsPosition(geo)");
+        query.addField(SOLR_FIELD_POINT_POSITION + ":pointsPosition(geo, geoHash)");
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());

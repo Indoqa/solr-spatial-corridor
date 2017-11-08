@@ -16,6 +16,7 @@
  */
 package com.indoqa.solr.spatial.corridor.query.route;
 
+import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.search.Query;
 import org.apache.solr.common.params.SolrParams;
@@ -57,7 +58,7 @@ public class RouteQueryParser extends QParser {
     }
 
     private LineString parseLineString() throws SyntaxError {
-        return LineStringUtils.parse(this.getParam("corridor.route"));
+        return LineStringUtils.parseOrGet(this.getParam("corridor.route"));
     }
 
     private ValueSource parseLocationValueSource() {

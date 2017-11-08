@@ -10,3 +10,5 @@ buildNumber.properties
 .project
 .settings/
 /bin/
+.idea
+*.iml

@@ -26,10 +26,12 @@
   <fieldType name="random" class="solr.RandomSortField" indexed="true" />
 
   <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
-    <analyzer type="index">
-      <tokenizer class="solr.StandardTokenizerFactory" />
-      <filter class="solr.LowerCaseFilterFactory" />
-    </analyzer>
+    <!--<analyzer type="index">-->
+      <!--<tokenizer class="solr.StandardTokenizerFactory" />-->
+      <!--<filter class="solr.LowerCaseFilterFactory" />-->
+      <!--<filter class="" />-->
+    <!--</analyzer>-->
+    <!--<analyzer type="index" class="com.indoqa.solr.spatial.corridor.analyzer.CacheLinestringsAnalyzer" />-->
     <analyzer type="query">
       <tokenizer class="solr.StandardTokenizerFactory" />
       <filter class="solr.LowerCaseFilterFactory" />
@@ -42,5 +44,6 @@
 
   <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
   <field name="geo" type="text_general" indexed="true" stored="true" multiValued="false" />
+  <field name="geoHash" type="string" indexed="true" stored="true" multiValued="false" />
 
 </schema>

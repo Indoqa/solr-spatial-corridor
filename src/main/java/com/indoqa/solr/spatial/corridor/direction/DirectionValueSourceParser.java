@@ -19,6 +19,10 @@ package com.indoqa.solr.spatial.corridor.direction;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.indoqa.solr.spatial.corridor.wkt.WktUtils;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.SyntaxError;
@@ -31,16 +35,25 @@ import com.vividsolutions.jts.io.WKTReader;
 
 public class DirectionValueSourceParser extends ValueSourceParser {
 
+    private final WKTReader wktReader;
+    private final GeometryFactory geometryFactory;
+
+    public DirectionValueSourceParser(){
+        super();
+        this.wktReader = new WKTReader();
+        this.geometryFactory = new GeometryFactory();
+    }
+
     @Override
     public ValueSource parse(FunctionQParser fp) throws SyntaxError {
         List<Point> queryPoints = new ArrayList<>();
         String[] queryPointParameters = fp.getParams().getParams("corridor.point");
 
         for (String queryPointParameter : queryPointParameters) {
-            queryPoints.add(this.readPoint(queryPointParameter));
+            queryPoints.add(WktUtils.parsePoint(queryPointParameter));
         }
 
-        ValueSource routeValueSource = new LineStringValueSource(fp.parseArg());
+        ValueSource routeValueSource = new LineStringValueSource(fp.parseArg(), fp.parseArg());
         return this.createValueSource(queryPoints, routeValueSource);
     }
 
@@ -50,14 +63,6 @@ public class DirectionValueSourceParser extends ValueSourceParser {
 
     protected String getDescription() {
         return "pointsDirection()";
-    }
-
-    private Point readPoint(String queryPointParameter) throws SyntaxError {
-        try {
-            return (Point) new WKTReader().read(queryPointParameter);
-        } catch (ParseException e) {
-            throw new SyntaxError("Parameter corridor.point must be a valid WKT Point!", e);
-        }
     }
 
 }

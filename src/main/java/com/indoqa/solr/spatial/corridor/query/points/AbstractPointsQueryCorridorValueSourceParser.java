@@ -19,6 +19,7 @@ package com.indoqa.solr.spatial.corridor.query.points;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.indoqa.solr.spatial.corridor.wkt.WktUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.SyntaxError;
@@ -37,10 +38,10 @@ public abstract class AbstractPointsQueryCorridorValueSourceParser extends Value
         String[] queryPointParameters = fp.getParams().getParams("corridor.point");
 
         for (String queryPointParameter : queryPointParameters) {
-            queryPoints.add(this.readPoint(queryPointParameter));
+            queryPoints.add(WktUtils.parsePoint(queryPointParameter));
         }
 
-        ValueSource routeValueSource = new LineStringValueSource(fp.parseArg());
+        ValueSource routeValueSource = new LineStringValueSource(fp.parseArg(), fp.parseArg());
 
         return this.createValueSource(queryPoints, routeValueSource);
     }
@@ -48,13 +49,5 @@ public abstract class AbstractPointsQueryCorridorValueSourceParser extends Value
     protected abstract ValueSource createValueSource(List<Point> queryPoints, ValueSource locationValueSource);
 
     protected abstract String getDescription();
-
-    private Point readPoint(String queryPointParameter) throws SyntaxError {
-        try {
-            return (Point) new WKTReader().read(queryPointParameter);
-        } catch (ParseException e) {
-            throw new SyntaxError("Parameter corridor.point must be set at least once and a valid Point!", e);
-        }
-    }
 
 }

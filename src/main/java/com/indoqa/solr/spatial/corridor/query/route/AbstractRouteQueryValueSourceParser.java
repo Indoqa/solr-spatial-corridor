@@ -16,6 +16,7 @@
  */
 package com.indoqa.solr.spatial.corridor.query.route;
 
+import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.SyntaxError;
@@ -27,7 +28,7 @@ public abstract class AbstractRouteQueryValueSourceParser extends ValueSourcePar
 
     @Override
     public ValueSource parse(FunctionQParser fp) throws SyntaxError {
-        LineString lineString = LineStringUtils.parse(fp.getParam("corridor.route"));
+        LineString lineString = LineStringUtils.parseOrGet(fp.getParam("corridor.route"));
         ValueSource locationValueSource = fp.parseValueSource();
 
         return this.createValueSource(lineString, locationValueSource);
