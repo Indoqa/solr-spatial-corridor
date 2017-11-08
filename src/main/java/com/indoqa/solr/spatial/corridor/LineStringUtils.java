@@ -53,14 +53,19 @@ public final class LineStringUtils {
         return cache.get(key, s -> parseWktLinestring(value));
     }
 
-    public static String cacheLineStringGetHash(String linestring){
+    public static HashGeometry cacheLineStringGetHashGeometry(String linestring, int radiusInMeters){
         if(linestring == null){
             return null;
         }
         String key = calculateHash(linestring);
         LineString parsedLineString = parseWktLinestring(linestring);
+
         cache.put(key, parsedLineString);
-        return key;
+        HashGeometry result = new HashGeometry();
+        // meters /((PI/180)x6378137)
+        result.setGeometry(parsedLineString.buffer(radiusInMeters / (Math.PI / 180 * 6378137)).toText());
+        result.setHash(key);
+        return result;
     }
 
     private static LineString parseWktLinestring(String corridorLineString) {

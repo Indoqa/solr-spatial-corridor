@@ -77,6 +77,77 @@ public class TestDirection {
         assertEquals(DOCUMENT_ID_2, response.getResults().get(1).getFieldValue(SOLR_FIELD_ID));
     }
 
+    @Test
+    public void testContains() throws IOException, SolrServerException {
+        SolrQuery query = new SolrQuery("*:*");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115321848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115322848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115323848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115324848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115325848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115326848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115328848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115329848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115320848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115321848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.20711532248342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327348342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327448342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327548342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327648342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327748342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327948342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327048342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327818342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327828342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327838342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207135327848342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207145327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207155327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207165327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207175327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207185327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207195327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207105327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207125327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207135327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207145327858342 48.384746675352))");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207155327858342 48.384746675352))");
+
+        query.setRows(Integer.MAX_VALUE);
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+
+        query = new SolrQuery("*:*");
+        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
+        query.setRows(Integer.MAX_VALUE);
+        response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+
+    }
+
+    @Test
+    public void intersects() throws IOException, SolrServerException {
+        SolrInputDocument solrDocument = new SolrInputDocument();
+        solrDocument.addField(SOLR_FIELD_ID, "intersects");
+        solrDocument.addField("geo", "LINESTRING(14.72702 48.11615,14.8369 48.13587)");
+
+        infrastructureRule.getSolrClient().add(solrDocument);
+        infrastructureRule.getSolrClient().commit(true, true);
+
+        SolrQuery query = new SolrQuery("*:*");
+        query.addFilterQuery("{!field f=geoGeom}Intersects(LINESTRING(14.72702 48.19311, 14.8369 48.13587))");
+
+        query.setRows(Integer.MAX_VALUE);
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+        assertEquals("intersects", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
+    }
+
     @Before
     public void setup() throws Exception {
         SolrInputDocument solrDocument = new SolrInputDocument();

@@ -25,6 +25,9 @@
   <fieldtype name="binary" class="solr.BinaryField" />
   <fieldType name="random" class="solr.RandomSortField" indexed="true" />
 
+  <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" spatialContextFactory="com.spatial4j.core.context.jts.JtsSpatialContextFactory"
+             geo="true" distErrPct="0.025" maxDistErr="0.000009" distanceUnits="degrees" />
+
   <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
     <!--<analyzer type="index">-->
       <!--<tokenizer class="solr.StandardTokenizerFactory" />-->
@@ -37,13 +40,15 @@
       <filter class="solr.LowerCaseFilterFactory" />
     </analyzer>
   </fieldType>
-  
+
   <uniqueKey>id</uniqueKey>
-  
+
   <field name="_version_" type="long" indexed="true" stored="true" />
+
 
   <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
   <field name="geo" type="text_general" indexed="true" stored="true" multiValued="false" />
   <field name="geoHash" type="string" indexed="true" stored="true" multiValued="false" />
+  <field name="geoGeom" type="location_rpt" indexed="true" stored="true" multiValued="false" />
 
 </schema>

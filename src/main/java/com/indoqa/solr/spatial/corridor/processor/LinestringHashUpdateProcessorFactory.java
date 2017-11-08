@@ -16,6 +16,7 @@
  */
 package com.indoqa.solr.spatial.corridor.processor;
 
+import com.indoqa.solr.spatial.corridor.HashGeometry;
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import org.apache.solr.common.SolrException;
 import org.apache.solr.common.SolrInputDocument;
@@ -34,6 +35,8 @@ public class LinestringHashUpdateProcessorFactory extends UpdateRequestProcessor
 
     private String linestringFieldName = null;
     private String hashFieldName = null;
+    private String linestringPolygonName = null;
+    private Integer radiusInMeters = null;
 
     @Override
     public void init(NamedList args) {
@@ -54,6 +57,22 @@ public class LinestringHashUpdateProcessorFactory extends UpdateRequestProcessor
             hashFieldName = obj.toString();
         }
 
+        obj = args.remove("linestringPolygonName");
+        if (null == obj && null == linestringPolygonName) {
+            throw new SolrException
+                    (SERVER_ERROR, "'linestringPolygonName' init param must be specified and non-null");
+        } else {
+            linestringPolygonName = obj.toString();
+        }
+
+        obj = args.remove("radiusInMeters");
+        if (null == obj && null == radiusInMeters) {
+            throw new SolrException
+                    (SERVER_ERROR, "'radiusInMeters' init param must be specified and non-null");
+        } else {
+            radiusInMeters = (Integer) obj;
+        }
+
         if (0 < args.size()) {
             throw new SolrException(SERVER_ERROR,
                     "Unexpected init param(s): '" +
@@ -65,7 +84,8 @@ public class LinestringHashUpdateProcessorFactory extends UpdateRequestProcessor
 
     @Override
     public UpdateRequestProcessor getInstance(SolrQueryRequest req, SolrQueryResponse rsp, UpdateRequestProcessor next) {
-        return new LinestringHashUpdateProcessor(this.linestringFieldName, this.hashFieldName, next);
+        return new LinestringHashUpdateProcessor(this.linestringFieldName, this.hashFieldName, this.linestringPolygonName,
+                this.radiusInMeters, next);
     }
 
 
@@ -74,30 +94,38 @@ public class LinestringHashUpdateProcessorFactory extends UpdateRequestProcessor
 
         final String linestringFieldName;
         final String hashFieldName;
+        final String linestringPolygonName;
+        private Integer radiusInMeters;
 
         public LinestringHashUpdateProcessor(final String linestringFieldName,
                                              final String hashFieldName,
+                                             final String linestringPolygonName,
+                                             final Integer radiusInMeters,
                                              final UpdateRequestProcessor next) {
             super(next);
             this.linestringFieldName = linestringFieldName;
             this.hashFieldName = hashFieldName;
+            this.radiusInMeters = radiusInMeters;
+            this.linestringPolygonName = linestringPolygonName;
         }
 
         @Override
         public void processAdd(AddUpdateCommand cmd) throws IOException {
             final SolrInputDocument doc = cmd.getSolrInputDocument();
 
-            if (doc.containsKey(linestringFieldName)) {
-                if (!doc.containsKey(hashFieldName)) {
-                    doc.addField(hashFieldName, calculateHash(doc.getFieldValue(linestringFieldName)));
+            if (doc.containsKey(this.linestringFieldName)) {
+                if (!doc.containsKey(this.hashFieldName) || !doc.containsKey(this.linestringPolygonName)) {
+                    HashGeometry hashGeometry = calculateHash(doc.getFieldValue(linestringFieldName));
+                    doc.addField(this.hashFieldName, hashGeometry.getHash());
+                    doc.addField(this.linestringPolygonName, hashGeometry.getGeometry());
                 }
             }
 
             super.processAdd(cmd);
         }
 
-        private String calculateHash(Object fieldValue) {
-            return LineStringUtils.cacheLineStringGetHash(fieldValue.toString());
+        private HashGeometry calculateHash(Object fieldValue) {
+            return LineStringUtils.cacheLineStringGetHashGeometry(fieldValue.toString(), this.radiusInMeters);
         }
     }
 }

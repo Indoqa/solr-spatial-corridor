@@ -266,6 +266,8 @@
       <processor class="com.indoqa.solr.spatial.corridor.processor.LinestringHashUpdateProcessorFactory">
         <str name="linestringFieldName">geo</str>
         <str name="hashFieldName">geoHash</str>
+        <str name="linestringPolygonName">geoGeom</str>
+        <int name="radiusInMeters">100</int>
       </processor>
       <processor class="solr.RunUpdateProcessorFactory" />
     </updateRequestProcessorChain>
