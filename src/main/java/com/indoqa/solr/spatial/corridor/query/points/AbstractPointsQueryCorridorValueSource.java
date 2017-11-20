@@ -29,8 +29,12 @@ import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
 
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPointsQueryCorridorValueSource.class);
 
     private List<Point> queryPoints;
     private ValueSource routeValueSource;
@@ -99,13 +103,18 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
         @Override
         public double doubleVal(int docId) {
             String routeAsString = this.routeValues.strVal(docId);
+            try{
 
-            if (routeAsString == null || routeAsString.isEmpty()) {
-                return -1;
+                if (routeAsString == null || routeAsString.isEmpty()) {
+                    return Double.MAX_VALUE;
+                }
+
+                LineString route = LineStringUtils.parseOrGet(routeAsString);
+                return AbstractPointsQueryCorridorValueSource.this.getValue(route);
+            }catch(Exception e){
+                LOGGER.error("Could not calculate value. | linestring={}", routeAsString, e);
             }
-
-            LineString route = LineStringUtils.parseOrGet(routeAsString);
-            return AbstractPointsQueryCorridorValueSource.this.getValue(route);
+            return Double.MAX_VALUE;
         }
     }
 }

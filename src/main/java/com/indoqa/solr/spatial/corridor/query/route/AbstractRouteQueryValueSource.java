@@ -29,8 +29,12 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRouteQueryValueSource extends ValueSource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractRouteQueryValueSource.class);
 
     private LineString lineString;
     private ValueSource loctionValueSource;
@@ -98,13 +102,18 @@ public abstract class AbstractRouteQueryValueSource extends ValueSource {
 
         @Override
         public double doubleVal(int docId) {
-            double[] values = new double[2];
+            try{
+                double[] values = new double[2];
 
-            this.locationValues.doubleVal(docId, values);
+                this.locationValues.doubleVal(docId, values);
 
-            Point point = GeometryFactory.createPointFromInternalCoord(new Coordinate(values[1], values[0]),
-                AbstractRouteQueryValueSource.this.getLineString());
-            return AbstractRouteQueryValueSource.this.getValue(point);
+                Point point = GeometryFactory.createPointFromInternalCoord(new Coordinate(values[1], values[0]),
+                        AbstractRouteQueryValueSource.this.getLineString());
+                return AbstractRouteQueryValueSource.this.getValue(point);
+            }catch (Exception e){
+                LOGGER.error("Could not calculate value.", e);
+            }
+            return Double.MAX_VALUE;
         }
 
     }

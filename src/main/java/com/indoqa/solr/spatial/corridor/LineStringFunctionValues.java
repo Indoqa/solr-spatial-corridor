@@ -21,11 +21,15 @@ import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
 
 public class LineStringFunctionValues extends FunctionValues {
+    
+    private static  final Logger LOGGER = LoggerFactory.getLogger(LineStringFunctionValues.class);
 
     private String hashFieldName;
     private LeafReaderContext readerContext;
@@ -49,7 +53,7 @@ public class LineStringFunctionValues extends FunctionValues {
             IndexableField field = document.getField(this.linestringFieldName);
             vals[0]= field.stringValue();
         }catch (Exception e){
-            e.printStackTrace();
+            LOGGER.error("Could not retrieve linestring.", e);
         }
     }
 
@@ -92,7 +96,7 @@ public class LineStringFunctionValues extends FunctionValues {
 
             return field.stringValue();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not retrieve linestring.", e);
         }
 
         return null;
