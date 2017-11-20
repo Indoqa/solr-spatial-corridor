@@ -40,12 +40,16 @@ public class PointsPositionValueSource extends AbstractPointsQueryCorridorValueS
 
     @Override
     protected double getValue(LineString lineString) {
-        LocationIndexedLine indexedLineString = new LocationIndexedLine(lineString);
+        try{
+            LocationIndexedLine indexedLineString = new LocationIndexedLine(lineString);
 
-        LinearLocation intersection = indexedLineString.project(this.getPoint().getCoordinate());
-        LineString routeToIntersection = (LineString) indexedLineString.extractLine(indexedLineString.getStartIndex(), intersection);
+            LinearLocation intersection = indexedLineString.project(this.getPoint().getCoordinate());
+            LineString routeToIntersection = (LineString) indexedLineString.extractLine(indexedLineString.getStartIndex(), intersection);
 
-        return routeToIntersection.getLength() * WGS84_TO_KILOMETERS_FACTOR;
+            return routeToIntersection.getLength() * WGS84_TO_KILOMETERS_FACTOR;
+        }catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("IllegalArgument for linestring: " + lineString.toText(), e);
+        }
     }
 
     private Point getPoint() {

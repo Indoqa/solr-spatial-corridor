@@ -148,6 +148,171 @@ public class TestDirection {
         assertEquals("intersects", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
     }
 
+    @Test
+    public void intersects2() throws IOException, SolrServerException {
+        SolrInputDocument solrDocument = new SolrInputDocument();
+        solrDocument.addField(SOLR_FIELD_ID, "intersects2");
+        solrDocument.addField("geo", "LINESTRING(16.38271045 48.14339643,  16.38271065 48.14410595)");
+
+        infrastructureRule.getSolrClient().add(solrDocument);
+        infrastructureRule.getSolrClient().commit(true, true);
+
+        SolrQuery query = new SolrQuery("*:*");
+        query.addField("id");
+        query.addField("pointsposition");
+        query.addField("pointsposition:pointsPosition(geo, geoGeomHash)");
+        query.addField("pointsdirection:pointsDirection(geo, geoGeomHash)");
+        query.addFilterQuery("{!frange l=0 u=0.01 cache=false}pointsDistance(geo, geoGeomHash)");
+        query.addFilterQuery("{!frange l=0 u=90.0 cache=false}pointsDirection(geo, geoGeomHash)");
+         query.add("corridor.point", "POINT(16.38271045 48.14339643)");
+         query.add("corridor.point", "POINT(16.38271065 48.14410595)");
+         query.add("corridor.point", "POINT(16.38268436 48.14416652)");
+         query.add("corridor.point", "POINT(16.38269672 48.14443787)");
+         query.add("corridor.point", "POINT(16.38267045 48.14449773)");
+         query.add("corridor.point", "POINT(16.38267664 48.14497039)");
+         query.add("corridor.point", "POINT(16.38265036 48.14503062)");
+         query.add("corridor.point", "POINT(16.38266341 48.14526763)");
+         query.add("corridor.point", "POINT(16.38265021 48.14556425)");
+         query.add("corridor.point", "POINT(16.38263701 48.14586088)");
+         query.add("corridor.point", "POINT(16.38262381 48.1461575)");
+         query.add("corridor.point", "POINT(16.38259756 48.14621712)");
+         query.add("corridor.point", "POINT(16.38261119 48.14640734)");
+         query.add("corridor.point", "POINT(16.38258499 48.14646639)");
+         query.add("corridor.point", "POINT(16.38260274 48.14651863)");
+         query.add("corridor.point", "POINT(16.38257666 48.14657542)");
+         query.add("corridor.point", "POINT(16.38258383 48.14676431)");
+         query.add("corridor.point", "POINT(16.38255775 48.14682103)");
+         query.add("corridor.point", "POINT(16.38251804 48.14762496)");
+         query.add("corridor.point", "POINT(16.38249195 48.14768172)");
+         query.add("corridor.point", "POINT(16.38248834 48.14801218)");
+         query.add("corridor.point", "POINT(16.38246226 48.14806892)");
+         query.add("corridor.point", "POINT(16.38248166 48.14838898)");
+         query.add("corridor.point", "POINT(16.38247474 48.14877103)");
+         query.add("corridor.point", "POINT(16.38246781 48.14915308)");
+         query.add("corridor.point", "POINT(16.38246089 48.14953513)");
+         query.add("corridor.point", "POINT(16.38243456 48.14959712)");
+         query.add("corridor.point", "POINT(16.38245619 48.14979294)");
+         query.add("corridor.point", "POINT(16.38242986 48.14985492)");
+         query.add("corridor.point", "POINT(16.38243916 48.15013669)");
+         query.add("corridor.point", "POINT(16.38242224 48.15047761)");
+         query.add("corridor.point", "POINT(16.38240531 48.15081854)");
+         query.add("corridor.point", "POINT(16.38238839 48.15115946)");
+         query.add("corridor.point", "POINT(16.38238844 48.15115824)");
+         query.add("corridor.point", "POINT(16.38237395 48.15156069)");
+         query.add("corridor.point", "POINT(16.38237145 48.15163397)");
+         query.add("corridor.point", "POINT(16.38235697 48.15205845)");
+         query.add("corridor.point", "POINT(16.38232785 48.15223582)");
+         query.add("corridor.point", "POINT(16.38224998 48.15250296)");
+         query.add("corridor.point", "POINT(16.38224955 48.15250417)");
+         query.add("corridor.point", "POINT(16.38219629 48.15265162)");
+         query.add("corridor.point", "POINT(16.38215142 48.15284092)");
+         query.add("corridor.point", "POINT(16.38212696 48.15288622)");
+         query.add("corridor.point", "POINT(16.38212774 48.1531097)");
+         query.add("corridor.point", "POINT(16.38210176 48.15316522)");
+         query.add("corridor.point", "POINT(16.38210174 48.15339764)");
+         query.add("corridor.point", "POINT(16.38207574 48.15368559)");
+         query.add("corridor.point", "POINT(16.38204974 48.15397354)");
+         query.add("corridor.point", "POINT(16.38202374 48.15426149)");
+         query.add("corridor.point", "POINT(16.38199776 48.15431702)");
+         query.add("corridor.point", "POINT(16.38201386 48.15459709)");
+         query.add("corridor.point", "POINT(16.38201384 48.15459774)");
+         query.add("corridor.point", "POINT(16.38200368 48.15487091)");
+         query.add("corridor.point", "POINT(16.38200572 48.1549708)");
+         query.add("corridor.point", "POINT(16.38200578 48.15497353)");
+         query.add("corridor.point", "POINT(16.38205396 48.15533472)");
+         query.add("corridor.point", "POINT(16.3820704 48.1554461)");
+         query.add("corridor.point", "POINT(16.38211166 48.15570793)");
+         query.add("corridor.point", "POINT(16.38214687 48.15593141)");
+         query.add("corridor.point", "POINT(16.38219812 48.15604942)");
+         query.add("corridor.point", "POINT(16.38220515 48.15607497)");
+         query.add("corridor.point", "POINT(16.38222187 48.1562129)");
+         query.add("corridor.point", "POINT(16.38225027 48.1563377)");
+         query.add("corridor.point", "POINT(16.38236753 48.1567184)");
+         query.add("corridor.point", "POINT(16.38236754 48.15671842)");
+         query.add("corridor.point", "POINT(16.38237714 48.15674814)");
+         query.add("corridor.point", "POINT(16.38244898 48.15697164)");
+         query.add("corridor.point", "POINT(16.38252717 48.15717077)");
+         query.add("corridor.point", "POINT(16.38270832 48.15762191)");
+         query.add("corridor.point", "POINT(16.38288948 48.15807305)");
+         query.add("corridor.point", "POINT(16.38303331 48.15843124)");
+         query.add("corridor.point", "POINT(16.38306822 48.15852873)");
+         query.add("corridor.point", "POINT(16.38306818 48.15852863)");
+         query.add("corridor.point", "POINT(16.3831645 48.15879632)");
+         query.add("corridor.point", "POINT(16.38318319 48.15885038)");
+         query.add("corridor.point", "POINT(16.38329445 48.15917225)");
+         query.add("corridor.point", "POINT(16.3834057 48.15949413)");
+         query.add("corridor.point", "POINT(16.38351696 48.159816)");
+         query.add("corridor.point", "POINT(16.3834319 48.1598454)");
+         query.add("corridor.point", "POINT(16.383858 48.1599123)");
+         query.add("corridor.point", "POINT(16.3840103 48.159944)");
+         query.add("corridor.point", "POINT(16.3842151 48.160019)");
+         query.add("corridor.point", "POINT(16.3844333 48.1601118)");
+         query.add("corridor.point", "POINT(16.3845602 48.1601114)");
+         query.add("corridor.point", "POINT(16.3846354 48.1601127)");
+         query.add("corridor.point", "POINT(16.384699 48.1601075)");
+         query.add("corridor.point", "POINT(16.3847867 48.1600939)");
+         query.add("corridor.point", "POINT(16.3848782 48.1600655)");
+         query.add("corridor.point", "POINT(16.3849303 48.1600468)");
+         query.add("corridor.point", "POINT(16.385007 48.1600535)");
+         query.add("corridor.point", "POINT(16.38494336 48.15998986)");
+         query.add("corridor.point", "POINT(16.38560008 48.15964061)");
+         query.add("corridor.point", "POINT(16.38557827 48.15965665)");
+         query.add("corridor.point", "POINT(16.38596188 48.15944709)");
+         query.add("corridor.point", "POINT(16.3863243 48.15925324)");
+         query.add("corridor.point", "POINT(16.38668673 48.15905939)");
+//         query.add("corridor.point", "POINT(16.38704915 48.15886554)");
+        query.addFilterQuery("{!field f=geoGeom}Intersects(LINESTRING(16.38271045 48.14339643,16.38271065 48.14410595,16.38268436 48.14416652,16.38269672 48.14443787,16.38267045 48.14449773,16.38267664 48.14497039,16.38265036 48.14503062,16.38266341 48.14526763,16.38265021 48.14556425,16.38263701 48.14586088,16.38262381 48.1461575,16.38259756 48.14621712,16.38261119 48.14640734,16.38258499 48.14646639,16.38260274 48.14651863,16.38257666 48.14657542,16.38258383 48.14676431,16.38255775 48.14682103,16.38251804 48.14762496,16.38249195 48.14768172,16.38248834 48.14801218,16.38246226 48.14806892,16.38248166 48.14838898,16.38247474 48.14877103,16.38246781 48.14915308,16.38246089 48.14953513,16.38243456 48.14959712,16.38245619 48.14979294,16.38242986 48.14985492,16.38243916 48.15013669,16.38242224 48.15047761,16.38240531 48.15081854,16.38238839 48.15115946,16.38238844 48.15115824,16.38237395 48.15156069,16.38237145 48.15163397, 16.38235697 48.15205845,16.38232785 48.15223582,16.38224998 48.15250296,16.38224955 48.15250417, 16.38219629 48.15265162,16.38215142 48.15284092,16.38212696 48.15288622,16.38212774 48.1531097, 16.38210176 48.15316522,16.38210174 48.15339764,16.38207574 48.15368559,16.38204974 48.15397354,16.38202374 48.15426149,16.38199776 48.15431702,16.38201386 48.15459709,16.38201384 48.15459774,16.38200368 48.15487091, 16.38200572 48.1549708,16.38200578 48.15497353,16.38205396 48.15533472,16.3820704 48.1554461, 16.38211166 48.15570793,16.38214687 48.15593141,16.38219812 48.15604942, 16.38220515 48.15607497,16.38222187 48.1562129,16.38225027 48.1563377,16.38236753 48.1567184,16.38236754 48.15671842,16.38237714 48.15674814,16.38244898 48.15697164,16.38252717 48.15717077,16.38270832 48.15762191,16.38288948 48.15807305, 16.38303331 48.15843124,16.38306822 48.15852873,16.38306818 48.15852863,16.3831645 48.15879632,16.38318319 48.15885038, 16.38329445 48.15917225,16.3834057 48.15949413, 16.38351696 48.159816,16.3834319 48.1598454,16.383858 48.1599123,16.3840103 48.159944,16.3842151 48.160019,16.3844333 48.1601118,16.3845602 48.1601114,16.3846354 48.1601127,16.384699 48.1601075,16.3847867 48.1600939,16.3848782 48.1600655,16.3849303 48.1600468,16.385007 48.1600535,16.38494336 48.15998986,16.38560008 48.15964061,16.38557827 48.15965665,16.38596188 48.15944709,16.3863243 48.15925324,16.38668673 48.15905939,16.38704915 48.15886554))");
+        
+        
+
+        query.setRows(Integer.MAX_VALUE);
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+        assertEquals("intersects2", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
+    }
+
+    @Test()
+    public void intersects3() throws IOException, SolrServerException {
+        SolrInputDocument solrDocument = new SolrInputDocument();
+        solrDocument.addField(SOLR_FIELD_ID, "intersects3");
+        solrDocument.addField("geo", "LINESTRING(9.747609347051139 47.409453865628436,9.747684123860608 47.4116993751579,9.745624582473056 47.41106082487543,9.743565041085617 47.41262945960319,9.743520075005335 47.41239211160078,9.743520075005335 47.41177743616075,9.743520075005335 47.41148531066436,9.743520075005335 47.41122361353119,9.743394169980434 47.40990293606566,9.743349203900152 47.409142162123985,9.74330423781987 47.40885002201029,9.74330423781987 47.408588311782445,9.74325927173959 47.408472671965164,9.743214305659308 47.40788229630981,9.743178332795082 47.40762058127347,9.743088400634406 47.40712149318118,9.73991345543277 47.40476713491394,9.749051112555094 47.40701973595363,9.747609347051139 47.409453865628436)");
+
+        infrastructureRule.getSolrClient().add(solrDocument);
+        infrastructureRule.getSolrClient().commit(true, true);
+
+        SolrQuery query = new SolrQuery("*:*");
+        query.setRows(Integer.MAX_VALUE);
+        query.addField("id");
+        query.addField("pointsposition");
+        query.addField("pointsposition:pointsPosition(geo, geoHash)");
+        query.addField("pointsdirection:pointsDirection(geo, geoHash)");
+        query.addFilterQuery("{!frange l=0 u=0.01 cache=false}pointsDistance(geo, geoHash)");
+        query.addFilterQuery("{!frange l=0 u=90.0 cache=false}pointsDirection(geo, geoHash)");
+        query.addFilterQuery("{!field f=geoGeom}Intersects(LINESTRING(9.743735912190722 47.41315283859754,9.743735912190722 47.41312240972865,9.7435650410856 47.41262945960319,9.743520075005302 47.41239211160078,9.743520075005302 47.41177743616075,9.743520075005302 47.41148531066436,9.743520075005302 47.41122361353119,9.743394169980473 47.40990293606566,9.743349203900177 47.409142162123985,9.743304237819881 47.40885002201029,9.743304237819881 47.408588311782445,9.743259271739586 47.408472671965164,9.74321430565929 47.40788229630981,9.743178332795052 47.40762058127347,9.743088400634461 47.40712149318118,9.742917529529336 47.40682934185967,9.74265672626362 47.40648241006073,9.742566794103027 47.406360679063425))");
+        query.add("corridor.point", "POINT(9.743735912190722 47.41315283859754)");
+        query.add("corridor.point", "POINT(9.743735912190722 47.41312240972865)");
+        query.add("corridor.point", "POINT(9.7435650410856 47.41262945960319)");
+        query.add("corridor.point", "POINT(9.743520075005302 47.41239211160078)");
+        query.add("corridor.point", "POINT(9.743520075005302 47.41177743616075)");
+        query.add("corridor.point", "POINT(9.743520075005302 47.41148531066436)");
+        query.add("corridor.point", "POINT(9.743520075005302 47.41122361353119)");
+        query.add("corridor.point", "POINT(9.743394169980473 47.40990293606566)");
+        query.add("corridor.point", "POINT(9.743349203900177 47.409142162123985)");
+        query.add("corridor.point", "POINT(9.743304237819881 47.40885002201029)");
+        query.add("corridor.point", "POINT(9.743304237819881 47.408588311782445)");
+        query.add("corridor.point", "POINT(9.743259271739586 47.408472671965164)");
+        query.add("corridor.point", "POINT(9.74321430565929 47.40788229630981)");
+        query.add("corridor.point", "POINT(9.743178332795052 47.40762058127347)");
+        query.add("corridor.point", "POINT(9.743088400634461 47.40712149318118)");
+        query.add("corridor.point", "POINT(9.742917529529336 47.40682934185967)");
+        query.add("corridor.point", "POINT(9.74265672626362 47.40648241006073)");
+        query.add("corridor.point", "POINT(9.742566794103027 47.406360679063425)");
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+        assertEquals("intersects3", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
+    }
+
     @Before
     public void setup() throws Exception {
         SolrInputDocument solrDocument = new SolrInputDocument();
