@@ -41,12 +41,17 @@ public final class LineStringUtils {
 
     private static Cache<String, LineString> cache;
 
-    public static LineString parseOrGet(String value)  {
+    public static LineString parseOrGet(String value, String hash)  {
         if (value == null) {
             return null;
         }
-        if(value.indexOf("hash-") != -1){
-            return cache.getIfPresent(value);
+
+        if (hash != null) {
+            LineString cached = cache.getIfPresent(hash);
+
+            if (cached != null) {
+                return cached;
+            }
         }
 
         String key = calculateHash(value);
@@ -66,6 +71,11 @@ public final class LineStringUtils {
         result.setGeometry(parsedLineString.buffer(radiusInMeters / (Math.PI / 180 * 6378137)).toText());
         result.setHash(key);
         return result;
+    }
+
+    public static void purgeCache() {
+        cache.invalidateAll();
+        cache.cleanUp();
     }
 
     private static LineString parseWktLinestring(String corridorLineString) {

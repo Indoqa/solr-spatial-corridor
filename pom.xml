@@ -24,12 +24,12 @@
 
     <groupId>com.indoqa.solr</groupId>
     <artifactId>spatial-corridor</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>6.6.2-SNAPSHOT</version>
 
     <name>Solr Spatial Corridor Search</name>
 
     <properties>
-        <solr-version>6.2.1</solr-version>
+        <solr-version>6.6.2</solr-version>
         <jts-version>1.13</jts-version>
         <junit-version>4.10</junit-version>
     </properties>
@@ -63,12 +63,6 @@
         </dependency>
 
 
-        <dependency>
-            <groupId>com.indoqa.solr</groupId>
-            <artifactId>solr-spring-client</artifactId>
-            <version>6.1.0</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>

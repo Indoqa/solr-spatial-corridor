@@ -16,28 +16,21 @@
  */
 package com.indoqa.solr.spatial.corridor;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.Fields;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.LeafReaderContext;
-import org.apache.lucene.queries.function.FunctionValues;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Collections;
 
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.queries.function.FunctionValues;
+
 public class LineStringFunctionValues extends FunctionValues {
-    
-    private static  final Logger LOGGER = LoggerFactory.getLogger(LineStringFunctionValues.class);
 
-    private String hashFieldName;
     private LeafReaderContext readerContext;
-    private String linestringFieldName;
+    private String fieldName;
 
-    public LineStringFunctionValues(String linestringFieldName, String hashFieldName, LeafReaderContext readerContext) {
-        this.linestringFieldName = linestringFieldName;
-        this.hashFieldName = hashFieldName;
+    public LineStringFunctionValues(String fieldName, LeafReaderContext readerContext) {
+        this.fieldName = fieldName;
         this.readerContext = readerContext;
     }
 
@@ -47,48 +40,17 @@ public class LineStringFunctionValues extends FunctionValues {
     }
 
     @Override
-    public void strVal(int doc, String[] vals) {
-        try{
-            Document document = getDocumentWithField(doc, this.linestringFieldName);
-            IndexableField field = document.getField(this.linestringFieldName);
-            vals[0]= field.stringValue();
-        }catch (Exception e){
-            LOGGER.error("Could not retrieve linestring.", e);
-        }
-    }
-
-    private boolean hasField(String fieldname) throws IOException {
-        Fields fields = this.readerContext.reader().fields();
-        for (String field : fields) {
-            if (field.equals(fieldname)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private Document getDocumentWithField(int doc, String fieldname) throws IOException {
-        return this.readerContext.reader().document(doc, Collections.singleton(fieldname));
-    }
-
-    @Override
     public String toString(int doc) {
         Document document;
 
         try {
-            if (hasField(this.hashFieldName)) {
-                document = getDocumentWithField(doc, this.hashFieldName);
-                IndexableField field = document.getField(this.hashFieldName);
-                if(field != null){
-                    return field.stringValue();
-                }
-            }
-            if(!hasField(linestringFieldName)){
+            document = this.readerContext.reader().document(doc, Collections.singleton(this.fieldName));
+
+            if (document == null) {
                 return null;
             }
 
-            document = getDocumentWithField(doc, this.linestringFieldName);
-            IndexableField field = document.getField(this.linestringFieldName);
+            IndexableField field = document.getField(this.fieldName);
 
             if (field == null) {
                 return null;
@@ -96,7 +58,7 @@ public class LineStringFunctionValues extends FunctionValues {
 
             return field.stringValue();
         } catch (IOException e) {
-            LOGGER.error("Could not retrieve linestring.", e);
+            e.printStackTrace();
         }
 
         return null;

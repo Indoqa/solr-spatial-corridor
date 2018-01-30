@@ -24,6 +24,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
+import org.apache.solr.schema.StrFieldSource;
 import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.SyntaxError;
 import org.apache.solr.search.ValueSourceParser;
@@ -53,12 +54,11 @@ public class DirectionValueSourceParser extends ValueSourceParser {
             queryPoints.add(WktUtils.parsePoint(queryPointParameter));
         }
 
-        ValueSource routeValueSource = new LineStringValueSource(fp.parseArg(), fp.parseArg());
-        return this.createValueSource(queryPoints, routeValueSource);
+        return this.createValueSource(queryPoints, new LineStringValueSource(fp.parseArg()), fp.parseValueSource());
     }
 
-    protected ValueSource createValueSource(List<Point> queryPoints, ValueSource routeValueSource) {
-        return new DirectionValueSource(queryPoints, routeValueSource);
+    protected ValueSource createValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
+        return new DirectionValueSource(queryPoints, routeValueSource, routeHashValueSource);
     }
 
     protected String getDescription() {

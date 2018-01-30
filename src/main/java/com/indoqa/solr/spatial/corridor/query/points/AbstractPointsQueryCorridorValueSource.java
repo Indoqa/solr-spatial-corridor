@@ -38,10 +38,12 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
 
     private List<Point> queryPoints;
     private ValueSource routeValueSource;
+    private ValueSource routeHashValueSource;
 
-    protected AbstractPointsQueryCorridorValueSource(List<Point> queryPoints, ValueSource routeValueSource) {
+    protected AbstractPointsQueryCorridorValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
         this.queryPoints = queryPoints;
         this.routeValueSource = routeValueSource;
+        this.routeHashValueSource = routeHashValueSource;
     }
 
     @Override
@@ -75,7 +77,8 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
     @Override
     public final FunctionValues getValues(Map context, LeafReaderContext readerContext) throws IOException {
         FunctionValues locationValues = this.routeValueSource.getValues(context, readerContext);
-        return new InverseCorridorDocValues(this, locationValues);
+        FunctionValues hashValues = this.routeHashValueSource.getValues(context, readerContext);
+        return new InverseCorridorDocValues(this, locationValues, hashValues);
     }
 
     @Override
@@ -93,23 +96,26 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
     private final class InverseCorridorDocValues extends DoubleDocValues {
 
         private FunctionValues routeValues;
+        private FunctionValues hashValues;
 
-        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues) {
+        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues) {
             super(vs);
 
             this.routeValues = routeValues;
+            this.hashValues = hashValues;
         }
 
         @Override
         public double doubleVal(int docId) {
             String routeAsString = this.routeValues.strVal(docId);
-            try{
+            String routeAsHash = this.hashValues.strVal(docId);
 
+            try{
                 if (routeAsString == null || routeAsString.isEmpty()) {
                     return Double.MAX_VALUE;
                 }
 
-                LineString route = LineStringUtils.parseOrGet(routeAsString);
+                LineString route = LineStringUtils.parseOrGet(routeAsString, routeAsHash);
                 return AbstractPointsQueryCorridorValueSource.this.getValue(route);
             }catch(Exception e){
                 LOGGER.error("Could not calculate value. | linestring={}", routeAsString, e);

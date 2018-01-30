@@ -43,7 +43,7 @@ public class TestDirection {
 
     @Test
     public void exactMatchBackwards() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.43768 48.20753)");
         query.add("corridor.point", "POINT(16.44175 48.2103)");
@@ -55,7 +55,7 @@ public class TestDirection {
 
     @Test
     public void exactMatchForwards() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.44175 48.2103)");
         query.add("corridor.point", "POINT(16.43768 48.20753)");
@@ -67,7 +67,7 @@ public class TestDirection {
 
     @Test
     public void notEnoughPoints() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41654 48.19311)");
 
@@ -160,10 +160,10 @@ public class TestDirection {
         SolrQuery query = new SolrQuery("*:*");
         query.addField("id");
         query.addField("pointsposition");
-        query.addField("pointsposition:pointsPosition(geo, geoGeomHash)");
-        query.addField("pointsdirection:pointsDirection(geo, geoGeomHash)");
-        query.addFilterQuery("{!frange l=0 u=0.01 cache=false}pointsDistance(geo, geoGeomHash)");
-        query.addFilterQuery("{!frange l=0 u=90.0 cache=false}pointsDirection(geo, geoGeomHash)");
+        query.addField("pointsposition:pointsPosition(geo, geoHash)");
+        query.addField("pointsdirection:pointsDirection(geo, geoHash)");
+        query.addFilterQuery("{!frange l=0 u=0.01 cache=false}pointsDistance(geo, geoHash)");
+        query.addFilterQuery("{!frange l=0 u=90.0 cache=false}pointsDirection(geo, geoHash)");
          query.add("corridor.point", "POINT(16.38271045 48.14339643)");
          query.add("corridor.point", "POINT(16.38271065 48.14410595)");
          query.add("corridor.point", "POINT(16.38268436 48.14416652)");

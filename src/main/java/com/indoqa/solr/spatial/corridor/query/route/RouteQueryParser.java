@@ -58,7 +58,7 @@ public class RouteQueryParser extends QParser {
     }
 
     private LineString parseLineString() throws SyntaxError {
-        return LineStringUtils.parseOrGet(this.getParam("corridor.route"));
+        return LineStringUtils.parseOrGet(this.getParam("corridor.route"), null);
     }
 
     private ValueSource parseLocationValueSource() {

@@ -29,8 +29,8 @@ import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
 public class PointsPositionValueSource extends AbstractPointsQueryCorridorValueSource {
 
-    public PointsPositionValueSource(List<Point> queryPoints, ValueSource routeValueSource) {
-        super(queryPoints, routeValueSource);
+    public PointsPositionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
+        super(queryPoints, routeValueSource, routeHashValueSource);
     }
 
     @Override

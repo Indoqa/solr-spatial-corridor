@@ -28,7 +28,7 @@ public abstract class AbstractRouteQueryValueSourceParser extends ValueSourcePar
 
     @Override
     public ValueSource parse(FunctionQParser fp) throws SyntaxError {
-        LineString lineString = LineStringUtils.parseOrGet(fp.getParam("corridor.route"));
+        LineString lineString = LineStringUtils.parseOrGet(fp.getParam("corridor.route"), null);
         ValueSource locationValueSource = fp.parseValueSource();
 
         return this.createValueSource(lineString, locationValueSource);

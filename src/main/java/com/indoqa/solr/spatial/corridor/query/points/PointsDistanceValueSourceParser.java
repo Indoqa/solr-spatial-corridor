@@ -25,8 +25,9 @@ import com.vividsolutions.jts.geom.Point;
 public class PointsDistanceValueSourceParser extends AbstractPointsQueryCorridorValueSourceParser {
 
     @Override
-    protected ValueSource createValueSource(List<Point> queryPoints, ValueSource routeValueSource) {
-        return new PointsDistanceValueSource(queryPoints, routeValueSource);
+    protected ValueSource createValueSource(List<Point> queryPoints, ValueSource routeValueSource,
+            ValueSource routeHashSource) {
+        return new PointsDistanceValueSource(queryPoints, routeValueSource, routeHashSource);
     }
 
     @Override

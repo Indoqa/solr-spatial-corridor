@@ -20,6 +20,7 @@ import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOME
 
 import java.util.List;
 
+import com.indoqa.solr.spatial.corridor.query.route.AbstractRouteQueryValueSource;
 import org.apache.lucene.queries.function.ValueSource;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -27,11 +28,15 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PointsDistanceValueSource extends AbstractPointsQueryCorridorValueSource {
 
-    protected PointsDistanceValueSource(List<Point> queryPoints, ValueSource routeValueSource) {
-        super(queryPoints, routeValueSource);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PointsDistanceValueSource.class);
+
+    protected PointsDistanceValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
+        super(queryPoints, routeValueSource, routeHashValueSource);
     }
 
     @Override
@@ -41,6 +46,8 @@ public class PointsDistanceValueSource extends AbstractPointsQueryCorridorValueS
 
     @Override
     protected double getValue(LineString lineString) {
+        LOGGER.warn(lineString != null ? lineString.toString(): "NULL!!!");
+
         LocationIndexedLine lineRef = new LocationIndexedLine(lineString);
 
         double minDistance = Integer.MAX_VALUE;

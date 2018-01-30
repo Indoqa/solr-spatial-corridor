@@ -20,6 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
+import com.indoqa.solr.spatial.corridor.HashGeometry;
+import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -37,13 +39,14 @@ public class TestPointsDistance {
     private static final String SOLR_FIELD_POINT_POSITION = "position";
 
     private static final String DOCUMENT_ID_1 = "id-1";
+    private static final String DOCUMENT_ID_2 = "id-2";
 
     @ClassRule
     public static EmbeddedSolrInfrastructureRule infrastructureRule = new EmbeddedSolrInfrastructureRule();
 
     @Test
     public void pointsExactMatch() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=0.00001}pointsDistance(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=0.00001}pointsDistance(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41654 48.19311)");
         query.addField(SOLR_FIELD_ID);
@@ -55,7 +58,7 @@ public class TestPointsDistance {
 
     @Test
     public void pointsFarAwayBroadDistance() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=2}pointsDistance(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=2}pointsDistance(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41 48.19)");
 
@@ -66,7 +69,7 @@ public class TestPointsDistance {
 
     @Test
     public void pointsFarAwayDistance() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=0.2}pointsDistance(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=0.2}pointsDistance(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41 48.19)");
 
@@ -77,7 +80,7 @@ public class TestPointsDistance {
 
     @Test
     public void pointsFarAwaySmallDistance() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=0.002}pointsDistance(geo)");
+        SolrQuery query = new SolrQuery("{!frange l=0 u=0.002}pointsDistance(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41 48.19)");
 
@@ -99,11 +102,22 @@ public class TestPointsDistance {
         assertEquals(0.0475, (double) response.getResults().get(0).getFieldValue(SOLR_FIELD_POINT_POSITION), 0.00009);
     }
 
+    @Test
+    public void pointsCacheCleanup() throws SolrServerException, IOException {
+        pointsExactMatch();
+
+        LineStringUtils.purgeCache();
+
+        pointsExactMatch();
+    }
+
     @Before
     public void setup() throws Exception {
+        String lineString = "LINESTRING(16.41654 48.19311,16.40812 48.18743)";
+
         SolrInputDocument solrDocument = new SolrInputDocument();
         solrDocument.addField(SOLR_FIELD_ID, DOCUMENT_ID_1);
-        solrDocument.addField("geo", "LINESTRING(16.41654 48.19311,16.40812 48.18743)");
+        solrDocument.addField("geo", lineString);
         infrastructureRule.getSolrClient().add(solrDocument);
 
         solrDocument = new SolrInputDocument();
