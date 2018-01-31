@@ -33,8 +33,6 @@ import org.slf4j.LoggerFactory;
 
 public class PointsDistanceValueSource extends AbstractPointsQueryCorridorValueSource {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PointsDistanceValueSource.class);
-
     protected PointsDistanceValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
         super(queryPoints, routeValueSource, routeHashValueSource);
     }
@@ -46,8 +44,6 @@ public class PointsDistanceValueSource extends AbstractPointsQueryCorridorValueS
 
     @Override
     protected double getValue(LineString lineString) {
-        LOGGER.warn(lineString != null ? lineString.toString(): "NULL!!!");
-
         LocationIndexedLine lineRef = new LocationIndexedLine(lineString);
 
         double minDistance = Integer.MAX_VALUE;
