@@ -16,6 +16,7 @@
  */
 package com.indoqa.solr.spatial.corridor;
 
+import com.indoqa.solr.spring.client.EmbeddedSolrServerBuilder;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.junit.rules.ExternalResource;
@@ -49,7 +50,7 @@ public class EmbeddedSolrInfrastructureRule extends ExternalResource {
             return;
         }
 
-        this.solrClient = EmbeddedSolrClientBuilder.build("file://./target/test-core", "solr/test");
+        this.solrClient = EmbeddedSolrServerBuilder.build("file://./target/test-core", "solr/test");
 
         this.initialized = true;
     }
