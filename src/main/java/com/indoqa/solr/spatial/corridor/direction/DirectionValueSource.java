@@ -104,13 +104,30 @@ public class DirectionValueSource extends ValueSource {
             return 0;
         }
 
+        LocationIndexedLine indexedLineString = new LocationIndexedLine(lineString);
+
         Coordinate queryCoordinate1 = this.getQueryPoints().get(0).getCoordinate();
         Coordinate queryCoordinate2 = this.getQueryPoints().get(1).getCoordinate();
 
+        double angleDifference1 = getAngleDifference(lineString, queryCoordinate1, queryCoordinate2, indexedLineString);
+
+        if (this.getQueryPoints().size() < 3) {
+            return angleDifference1;
+        }
+
+        Coordinate queryCoordinate3 = this.getQueryPoints().get(this.getQueryPoints().size() - 2).getCoordinate();
+        Coordinate queryCoordinate4 = this.getQueryPoints().get(this.getQueryPoints().size() - 1).getCoordinate();
+
+        double angleDifference2 = getAngleDifference(lineString, queryCoordinate3, queryCoordinate4, indexedLineString);
+
+        return Math.min(angleDifference1, angleDifference2);
+    }
+
+    private double getAngleDifference(LineString lineString, Coordinate queryCoordinate1, Coordinate queryCoordinate2,
+            LocationIndexedLine indexedLineString) {
         Coordinate routeCoordinate1;
         Coordinate routeCoordinate2;
 
-        LocationIndexedLine indexedLineString = new LocationIndexedLine(lineString);
         LinearLocation intersection = indexedLineString.project(queryCoordinate1);
         int intersectionIndex = intersection.getSegmentIndex();
 

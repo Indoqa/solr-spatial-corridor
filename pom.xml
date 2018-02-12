@@ -23,7 +23,7 @@
 
     <groupId>com.indoqa.solr</groupId>
     <artifactId>spatial-corridor</artifactId>
-    <version>6.6.2</version>
+    <version>6.6.2-1</version>
 
     <name>Solr Spatial Corridor Search</name>
 
