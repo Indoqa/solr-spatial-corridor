@@ -21,18 +21,22 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
 public class WktUtils {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(WktUtils.class);
+
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 
-
     public static LineString parseLineString(String corridorLineString) {
-        String rawCoordinates = StringUtils.substringBetween(corridorLineString,"LINESTRING(", ")");
-        if(rawCoordinates == null){
-            throw new IllegalArgumentException("Parameter must be a valid WKT Linestring!");
+        String rawCoordinates = StringUtils.substringBetween(corridorLineString, "LINESTRING(", ")");
+        if (rawCoordinates == null || rawCoordinates.trim().isEmpty()) {
+            LOGGER.warn("Linestring without coordinates found: '{}'", corridorLineString);
+            return geometryFactory.createLineString((Coordinate[]) null);
         }
         String[] coordinates = rawCoordinates.trim().split(",");
 
@@ -41,8 +45,8 @@ public class WktUtils {
     }
 
     public static Point parsePoint(String pointString) {
-        String rawPoints = StringUtils.substringBetween(pointString,"POINT(", ")");
-        if(rawPoints == null){
+        String rawPoints = StringUtils.substringBetween(pointString, "POINT(", ")");
+        if (rawPoints == null) {
             throw new IllegalArgumentException("Parameter must be a valid WKT Point!");
         }
 

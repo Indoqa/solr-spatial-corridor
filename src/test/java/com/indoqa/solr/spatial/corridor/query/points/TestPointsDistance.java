@@ -123,6 +123,11 @@ public class TestPointsDistance {
         solrDocument = new SolrInputDocument();
         solrDocument.addField(SOLR_FIELD_ID, "id-no-geo");
         infrastructureRule.getSolrClient().add(solrDocument);
+
+        solrDocument = new SolrInputDocument();
+        solrDocument.addField("geo", "LINESTRING()");
+        solrDocument.addField(SOLR_FIELD_ID, "id-empty-geo");
+        infrastructureRule.getSolrClient().add(solrDocument);
         infrastructureRule.getSolrClient().commit(true, true);
     }
 
