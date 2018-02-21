@@ -100,6 +100,10 @@ public class DirectionValueSource extends ValueSource {
     }
 
     protected double getValue(LineString lineString) {
+        if (lineString == null || lineString.isEmpty()) {
+            return Double.MAX_VALUE;
+        }
+
         if (this.getQueryPoints().size() < 2) {
             return 0;
         }
@@ -162,7 +166,7 @@ public class DirectionValueSource extends ValueSource {
             String routeAsString = this.routeValues.strVal(docId);
             String routeAsHash = this.hashValues.strVal(docId);
 
-            try{
+            try {
                 if (routeAsString == null || routeAsString.isEmpty()) {
                     return -1;
                 }
@@ -170,7 +174,7 @@ public class DirectionValueSource extends ValueSource {
                 LineString route = LineStringUtils.parseOrGet(routeAsString, routeAsHash);
 
                 return DirectionValueSource.this.getValue(route);
-            }catch(Exception e){
+            } catch(Exception e){
                 LOGGER.error("Could not calculate value. | linestring={}", routeAsString, e);
             }
             return Double.MAX_VALUE;
