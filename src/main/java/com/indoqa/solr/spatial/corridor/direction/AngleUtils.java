@@ -20,12 +20,68 @@ import static java.lang.Math.PI;
 
 import com.vividsolutions.jts.algorithm.Angle;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.linearref.LinearLocation;
+import com.vividsolutions.jts.linearref.LocationIndexedLine;
+
+import java.util.List;
 
 public class AngleUtils {
 
     public static double angle(Coordinate c1, Coordinate c2) {
         double angleInRadians = Angle.angle(c1, c2);
         return angleInRadians * (180 / PI);
+    }
+
+    protected static double getAngleDifference(LineString lineString, List<Point> queryPoints) {
+        if (lineString == null || lineString.isEmpty()) {
+            return Double.MAX_VALUE;
+        }
+
+        if (queryPoints.size() < 2) {
+            return 0;
+        }
+
+        LocationIndexedLine indexedLineString = new LocationIndexedLine(lineString);
+
+        Coordinate queryCoordinate1 = queryPoints.get(0).getCoordinate();
+        Coordinate queryCoordinate2 = queryPoints.get(1).getCoordinate();
+
+        double angleDifference1 = getAngleDifference(lineString, queryCoordinate1, queryCoordinate2, indexedLineString);
+
+        if (queryPoints.size() < 3) {
+            return angleDifference1;
+        }
+
+        Coordinate queryCoordinate3 = queryPoints.get(queryPoints.size() - 2).getCoordinate();
+        Coordinate queryCoordinate4 = queryPoints.get(queryPoints.size() - 1).getCoordinate();
+
+        double angleDifference2 = getAngleDifference(lineString, queryCoordinate3, queryCoordinate4, indexedLineString);
+
+        return Math.min(angleDifference1, angleDifference2);
+    }
+
+    private static double getAngleDifference(LineString lineString, Coordinate queryCoordinate1, Coordinate queryCoordinate2,
+            LocationIndexedLine indexedLineString) {
+        Coordinate routeCoordinate1;
+        Coordinate routeCoordinate2;
+
+        LinearLocation intersection = indexedLineString.project(queryCoordinate1);
+        int intersectionIndex = intersection.getSegmentIndex();
+
+        if (!intersection.isEndpoint(lineString)) {
+            routeCoordinate1 = intersection.getCoordinate(lineString);
+            routeCoordinate2 = lineString.getCoordinateN(intersectionIndex + 1);
+        } else {
+            routeCoordinate1 = lineString.getCoordinateN(intersectionIndex - 1);
+            routeCoordinate2 = intersection.getCoordinate(lineString);
+        }
+
+        double routeAngleAtIntersection = AngleUtils.angle(routeCoordinate1, routeCoordinate2);
+        double queryAngle = AngleUtils.angle(queryCoordinate1, queryCoordinate2);
+
+        return Math.abs(routeAngleAtIntersection - queryAngle);
     }
 
 }

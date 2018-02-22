@@ -66,6 +66,49 @@ public class TestDirection {
     }
 
     @Test
+    public void exactMatchBackwardsBoolean() throws SolrServerException, IOException {
+        SolrQuery query = new SolrQuery("{!frange l=1} inPointsDirection(geo, geoHash)");
+        query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.point", "POINT(16.43768 48.20753)");
+        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.maxAngleDifference", "90");
+        query.add("corridor.bidirectional", "false");
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+        assertEquals(DOCUMENT_ID_2, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
+    }
+
+    @Test
+    public void exactMatchBidirectionalBoolean() throws SolrServerException, IOException {
+        SolrQuery query = new SolrQuery("{!frange l=1} inPointsDirection(geo, geoHash)");
+        query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.point", "POINT(16.43768 48.20753)");
+        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.maxAngleDifference", "90");
+        query.add("corridor.bidirectional", "true");
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(2, response.getResults().getNumFound());
+    }
+
+    @Test
+    public void exactMatchForwardsBoolean() throws SolrServerException, IOException {
+        SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
+        query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.point", "POINT(16.43768 48.20753)");
+        query.add("corridor.maxAngleDifference", "90");
+        query.add("corridor.bidirectional", "false");
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+        assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
+    }
+
+    @Test
     public void notEnoughPoints() throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);

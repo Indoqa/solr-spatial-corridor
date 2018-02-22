@@ -16,51 +16,54 @@
  */
 package com.indoqa.solr.spatial.corridor.direction;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LinearLocation;
-import com.vividsolutions.jts.linearref.LocationIndexedLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DirectionValueSource extends ValueSource {
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DirectionValueSource.class);
+import static java.text.MessageFormat.format;
+
+public class InDirectionValueSource extends ValueSource {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InDirectionValueSource.class);
 
     private List<Point> queryPoints;
     private ValueSource routeValueSource;
     private ValueSource routeHashValueSource;
+    private double maxDifference;
+    private boolean bidirectional;
 
-    protected DirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
+    protected InDirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
+            double maxDifference, boolean bidirectional) {
         this.queryPoints = queryPoints;
         this.routeValueSource = routeValueSource;
         this.routeHashValueSource = routeHashValueSource;
+        this.maxDifference = maxDifference;
+        this.bidirectional = bidirectional;
     }
 
     @Override
     public String description() {
-        return "pointsDirection()";
+        return "inPointsDirection()";
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof DirectionValueSource)) {
+        if (!(o instanceof InDirectionValueSource)) {
             return false;
         }
 
-        DirectionValueSource other = (DirectionValueSource) o;
+        InDirectionValueSource other = (InDirectionValueSource) o;
 
         if (ObjectUtils.notEqual(other.queryPoints, this.queryPoints)) {
             return false;
@@ -86,7 +89,7 @@ public class DirectionValueSource extends ValueSource {
     public final FunctionValues getValues(Map context, LeafReaderContext readerContext) throws IOException {
         FunctionValues locationValues = this.routeValueSource.getValues(context, readerContext);
         FunctionValues hashValues = this.routeHashValueSource.getValues(context, readerContext);
-        return new InverseCorridorDocValues(this, locationValues, hashValues);
+        return new InverseCorridorDocValues(this, locationValues, hashValues, this.maxDifference, this.bidirectional);
     }
 
     @Override
@@ -108,12 +111,17 @@ public class DirectionValueSource extends ValueSource {
 
         private FunctionValues routeValues;
         private FunctionValues hashValues;
+        private double maxDifference;
+        private boolean bidirectional;
 
-        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues) {
+        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues,
+                double maxDifference, boolean bidirectional) {
             super(vs);
 
             this.routeValues = routeValues;
             this.hashValues = hashValues;
+            this.maxDifference = maxDifference;
+            this.bidirectional = bidirectional;
         }
 
 
@@ -130,7 +138,17 @@ public class DirectionValueSource extends ValueSource {
 
                 LineString route = LineStringUtils.parseOrGet(routeAsString, routeAsHash);
 
-                return DirectionValueSource.this.getValue(route);
+                double difference = InDirectionValueSource.this.getValue(route);
+
+                if ((difference >= 360 - maxDifference && difference <= 360) || (difference > 0 && difference <= maxDifference)) {
+                    return 1;
+                }
+
+                if (bidirectional && (difference >= 180 - maxDifference && difference <= 180 + maxDifference)) {
+                    return 1;
+                }
+
+                return 0;
             } catch(Exception e){
                 LOGGER.error("Could not calculate value. | linestring={}", routeAsString, e);
             }
