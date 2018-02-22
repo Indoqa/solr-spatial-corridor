@@ -109,6 +109,17 @@ public class TestDirection {
     }
 
     @Test
+    public void booleanWithDefaults() throws SolrServerException, IOException {
+        SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
+        query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.point", "POINT(16.43768 48.20753)");
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(0, response.getResults().getNumFound());
+    }
+
+    @Test
     public void notEnoughPoints() throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
