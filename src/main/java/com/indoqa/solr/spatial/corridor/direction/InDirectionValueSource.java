@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static java.text.MessageFormat.format;
-
 public class InDirectionValueSource extends ValueSource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InDirectionValueSource.class);
@@ -42,14 +40,18 @@ public class InDirectionValueSource extends ValueSource {
     private ValueSource routeHashValueSource;
     private double maxDifference;
     private boolean bidirectional;
+    private double maxDifferenceAdditionalPointsCheck;
+    private double pointsMaxDistanceToRoute;
 
     protected InDirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
-            double maxDifference, boolean bidirectional) {
+            double maxDifference, boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute) {
         this.queryPoints = queryPoints;
         this.routeValueSource = routeValueSource;
         this.routeHashValueSource = routeHashValueSource;
         this.maxDifference = maxDifference;
         this.bidirectional = bidirectional;
+        this.maxDifferenceAdditionalPointsCheck = maxDifferenceAdditionalPointsCheck;
+        this.pointsMaxDistanceToRoute = pointsMaxDistanceToRoute;
     }
 
     @Override
@@ -89,7 +91,8 @@ public class InDirectionValueSource extends ValueSource {
     public final FunctionValues getValues(Map context, LeafReaderContext readerContext) throws IOException {
         FunctionValues locationValues = this.routeValueSource.getValues(context, readerContext);
         FunctionValues hashValues = this.routeHashValueSource.getValues(context, readerContext);
-        return new InverseCorridorDocValues(this, locationValues, hashValues, this.maxDifference, this.bidirectional);
+        return new InverseCorridorDocValues(this, locationValues, hashValues,
+                this.maxDifference, this.bidirectional, this.maxDifferenceAdditionalPointsCheck, this.pointsMaxDistanceToRoute);
     }
 
     @Override
@@ -113,15 +116,20 @@ public class InDirectionValueSource extends ValueSource {
         private FunctionValues hashValues;
         private double maxDifference;
         private boolean bidirectional;
+        private double maxDifferenceAdditionalPointsCheck;
+        private double pointsMaxDistanceToRoute;
 
         protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues,
-                double maxDifference, boolean bidirectional) {
+                                           double maxDifference, boolean bidirectional,
+                                           double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute) {
             super(vs);
 
             this.routeValues = routeValues;
             this.hashValues = hashValues;
             this.maxDifference = maxDifference;
             this.bidirectional = bidirectional;
+            this.maxDifferenceAdditionalPointsCheck = maxDifferenceAdditionalPointsCheck;
+            this.pointsMaxDistanceToRoute = pointsMaxDistanceToRoute;
         }
 
 
@@ -140,12 +148,24 @@ public class InDirectionValueSource extends ValueSource {
 
                 double difference = InDirectionValueSource.this.getValue(route);
 
-                if ((difference >= 360 - maxDifference && difference <= 360) || (difference > 0 && difference <= maxDifference)) {
+                if (checkAngleDifferenceInFirstOrSecondQuadrant(difference, maxDifference)) {
                     return 1;
                 }
 
-                if (bidirectional && (difference >= 180 - maxDifference && difference <= 180 + maxDifference)) {
+                if (bidirectional && checkAngleDifferenceInThirdOrFourthQuadrant(difference, maxDifference)) {
                     return 1;
+                }
+
+                if (checkAngleDifferenceInFirstOrSecondQuadrant(difference, maxDifferenceAdditionalPointsCheck)){
+                    if (allPointsWithinDistanceTo(route)) {
+                        return 1;
+                    }
+                }
+
+                if (bidirectional && checkAngleDifferenceInThirdOrFourthQuadrant(difference, maxDifferenceAdditionalPointsCheck)) {
+                    if (allPointsWithinDistanceTo(route)) {
+                        return 1;
+                    }
                 }
 
                 return 0;
@@ -153,6 +173,31 @@ public class InDirectionValueSource extends ValueSource {
                 LOGGER.error("Could not calculate value. | linestring={}", routeAsString, e);
             }
             return Double.MAX_VALUE;
+        }
+
+        private boolean allPointsWithinDistanceTo(LineString route) {
+            for (Point point : queryPoints) {
+                if (!point.isWithinDistance(route, this.pointsMaxDistanceToRoute)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private boolean checkAngleDifferenceInThirdOrFourthQuadrant(double actualDifference, double maxDifference) {
+            return actualDifference >= 180 - maxDifference && actualDifference <= 180 + maxDifference;
+        }
+
+        private boolean checkAngleDifferenceInFirstOrSecondQuadrant(double actualDifference, double maxDifference) {
+            if (actualDifference >= 360 - maxDifference && actualDifference <= 360) {
+                return true;
+            }
+
+            if (actualDifference > 0 && actualDifference <= maxDifference) {
+                return true;
+            }
+
+            return false;
         }
     }
 }
