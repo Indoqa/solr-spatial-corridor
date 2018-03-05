@@ -53,8 +53,12 @@ public class InDirectionValueSourceParser extends ValueSourceParser {
         ValueSource routeHashValueSource = fp.parseValueSource();
         double maxAngleDifference =  fp.getParams().getDouble("corridor.maxAngleDifference", 0);
         boolean bidirectional =  fp.getParams().getBool("corridor.bidirectional", false);
+        double maxAngleDifferenceAdditionalPointsCheck = fp.getParams().getDouble("corridor.maxAngleDifferenceAdditionalPointsCheck", 0);
+        double pointsMaxDistanceToRoute = fp.getParams().getDouble("corridor.pointsMaxDistanceToRoute", 0.0001);
+        int percentageOfPointsWithinDistance = fp.getParams().getInt("corridor.percentageOfPointsWithinDistance", 100);
 
-        return new InDirectionValueSource(queryPoints, routeValueSource, routeHashValueSource, maxAngleDifference, bidirectional);
+        return new InDirectionValueSource(queryPoints, routeValueSource, routeHashValueSource, maxAngleDifference, bidirectional,
+                maxAngleDifferenceAdditionalPointsCheck, pointsMaxDistanceToRoute, percentageOfPointsWithinDistance);
     }
 
     protected String getDescription() {
