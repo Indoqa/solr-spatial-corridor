@@ -176,12 +176,23 @@ public class TestDirection {
                 geo(16.22989637892283, 48.37665998879075),
                 geo(16.210563016343485, 48.3813489592768),
                 geo(16.190306973863017, 48.38183350911145),
-                geo(16.177904439378153, 48.38779024485453));
+                geo(16.177904439378153, 48.38779024485453),
+                geo(16.178333592820536, 48.38077889474244));
         query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
         query.add("corridor.maxAngleDifference", "5");
         query.add("corridor.maxAngleDifferenceAdditionalPointsCheck", "10");
         query.add("corridor.bidirectional", "false");
 
+        // not all points are within route distance
+        response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(0, response.getResults().getNumFound());
+
+        // only 4 / 5 percent are withinDistance
+        query.add("corridor.percentageOfPointsWithinDistance", "90");
+        response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(0, response.getResults().getNumFound());
+
+        query.set("corridor.percentageOfPointsWithinDistance", "80");
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
         assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));

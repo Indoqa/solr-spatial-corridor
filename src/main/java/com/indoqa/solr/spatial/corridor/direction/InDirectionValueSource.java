@@ -42,9 +42,11 @@ public class InDirectionValueSource extends ValueSource {
     private boolean bidirectional;
     private double maxDifferenceAdditionalPointsCheck;
     private double pointsMaxDistanceToRoute;
+    private int percentageOfPointsWithinDistance;
 
     protected InDirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
-            double maxDifference, boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute) {
+            double maxDifference, boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
+            int percentageOfPointsWithinDistance) {
         this.queryPoints = queryPoints;
         this.routeValueSource = routeValueSource;
         this.routeHashValueSource = routeHashValueSource;
@@ -52,6 +54,7 @@ public class InDirectionValueSource extends ValueSource {
         this.bidirectional = bidirectional;
         this.maxDifferenceAdditionalPointsCheck = maxDifferenceAdditionalPointsCheck;
         this.pointsMaxDistanceToRoute = pointsMaxDistanceToRoute;
+        this.percentageOfPointsWithinDistance = percentageOfPointsWithinDistance;
     }
 
     @Override
@@ -157,13 +160,13 @@ public class InDirectionValueSource extends ValueSource {
                 }
 
                 if (checkAngleDifferenceInFirstOrSecondQuadrant(difference, maxDifferenceAdditionalPointsCheck)){
-                    if (allPointsWithinDistanceTo(route)) {
+                    if (percentageOfPointsWithinDistanceTo(route) >= percentageOfPointsWithinDistance) {
                         return 1;
                     }
                 }
 
                 if (bidirectional && checkAngleDifferenceInThirdOrFourthQuadrant(difference, maxDifferenceAdditionalPointsCheck)) {
-                    if (allPointsWithinDistanceTo(route)) {
+                    if ((percentageOfPointsWithinDistanceTo(route) / 100) >= percentageOfPointsWithinDistance) {
                         return 1;
                     }
                 }
@@ -175,13 +178,14 @@ public class InDirectionValueSource extends ValueSource {
             return Double.MAX_VALUE;
         }
 
-        private boolean allPointsWithinDistanceTo(LineString route) {
+        private int percentageOfPointsWithinDistanceTo(LineString route) {
+            int result = 0;
             for (Point point : queryPoints) {
-                if (!point.isWithinDistance(route, this.pointsMaxDistanceToRoute)) {
-                    return false;
+                if (point.isWithinDistance(route, this.pointsMaxDistanceToRoute)) {
+                    result++;
                 }
             }
-            return true;
+            return Double.valueOf((double) result / queryPoints.size() * 100).intValue();
         }
 
         private boolean checkAngleDifferenceInThirdOrFourthQuadrant(double actualDifference, double maxDifference) {
