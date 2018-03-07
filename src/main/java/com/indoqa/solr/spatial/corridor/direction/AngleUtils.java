@@ -16,6 +16,7 @@
  */
 package com.indoqa.solr.spatial.corridor.direction;
 
+import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
 import static java.lang.Math.PI;
 
 import com.vividsolutions.jts.algorithm.Angle;
@@ -25,7 +26,9 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.linearref.LinearLocation;
 import com.vividsolutions.jts.linearref.LocationIndexedLine;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class AngleUtils {
 
@@ -59,7 +62,14 @@ public class AngleUtils {
 
         double angleDifference2 = getAngleDifference(lineString, queryCoordinate3, queryCoordinate4, indexedLineString);
 
-        return Math.min(angleDifference1, angleDifference2);
+        int middlePoint = queryPoints.size() / 2;
+
+        Coordinate queryCoordinate5 = queryPoints.get(middlePoint).getCoordinate();
+        Coordinate queryCoordinate6 = queryPoints.get(middlePoint + 1).getCoordinate();
+
+        double angleDifference3 = getAngleDifference(lineString, queryCoordinate5, queryCoordinate6, indexedLineString);
+
+        return Math.min(Math.min(angleDifference1, angleDifference2), angleDifference3);
     }
 
     private static double getAngleDifference(LineString lineString, Coordinate queryCoordinate1, Coordinate queryCoordinate2,
