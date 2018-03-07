@@ -166,7 +166,7 @@ public class InDirectionValueSource extends ValueSource {
                 }
 
                 if (bidirectional && checkAngleDifferenceInThirdOrFourthQuadrant(difference, maxDifferenceAdditionalPointsCheck)) {
-                    if ((percentageOfPointsWithinDistanceTo(route) / 100) >= percentageOfPointsWithinDistance) {
+                    if (percentageOfPointsWithinDistanceTo(route) >= percentageOfPointsWithinDistance) {
                         return 1;
                     }
                 }
@@ -197,7 +197,7 @@ public class InDirectionValueSource extends ValueSource {
                 return true;
             }
 
-            if (actualDifference > 0 && actualDifference <= maxDifference) {
+            if (actualDifference >= 0 && actualDifference <= maxDifference) {
                 return true;
             }
 
