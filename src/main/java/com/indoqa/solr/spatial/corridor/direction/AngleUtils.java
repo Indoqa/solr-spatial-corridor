@@ -78,6 +78,13 @@ public class AngleUtils {
         Coordinate routeCoordinate2;
 
         LinearLocation intersection = indexedLineString.project(queryCoordinate1);
+
+        double distance = intersection.getCoordinate(lineString).distance(queryCoordinate1) * WGS84_TO_KILOMETERS_FACTOR;
+
+        if (distance > 0.01) {
+            return Double.MAX_VALUE;
+        }
+
         int intersectionIndex = intersection.getSegmentIndex();
 
         if (!intersection.isEndpoint(lineString)) {
