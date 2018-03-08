@@ -53,8 +53,8 @@ public class TestDirection {
     public void exactMatchBackwards() throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.point", "POINT(16.43768 48.20753)");
-        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.point", "POINT(16.891858798594868 48.22143885086025)");
+        query.add("corridor.point", "POINT(16.89467367522139 48.22112128651476)");
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
@@ -67,17 +67,10 @@ public class TestDirection {
         query.setRows(Integer.MAX_VALUE);
 
         String linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.44175, 48.2103),
-                geo(16.43768, 48.20753));
-
+                geo(16.31468318513228, 48.35434292589007),
+                geo(16.315681432114854, 48.35333891624698)
+                );
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(2, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-        assertEquals(DOCUMENT_ID_3, response.getResults().get(1).getFieldValue(SOLR_FIELD_ID));
-
-        query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)",linestring));
-
-        response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
         assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
     }
@@ -86,9 +79,8 @@ public class TestDirection {
     public void exactMatchBackwardsBoolean() throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery("{!frange l=1} inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.point", "POINT(16.43768 48.20753)");
-        query.add("corridor.point", "POINT(16.44175 48.2103)");
-        query.add("corridor.point", "POINT(16.44175 48.2103)");
+        query.add("corridor.point", "POINT(16.891858798594868 48.22143885086025)");
+        query.add("corridor.point", "POINT(16.89467367522139 48.22112128651476)");
         query.add("corridor.maxAngleDifference", "90");
         query.add("corridor.bidirectional", "false");
 
@@ -103,19 +95,13 @@ public class TestDirection {
         query.setRows(Integer.MAX_VALUE);
 
         String linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.43768, 48.20753),
-                geo(16.44175, 48.2103),
-                geo(16.44175, 48.2103));
+                geo(16.31468318513228, 48.35434292589007),
+                geo(16.315681432114854, 48.35333891624698));
         query.add("corridor.maxAngleDifference", "90");
         query.add("corridor.bidirectional", "true");
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(3, response.getResults().getNumFound());
-
-        query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
-
-        response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(2, response.getResults().getNumFound());
+        assertEquals(1, response.getResults().getNumFound());
     }
 
     @Test
@@ -123,19 +109,12 @@ public class TestDirection {
         SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         String linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.44175, 48.2103),
-                geo(16.43768, 48.20753));
+                geo(16.31468318513228, 48.35434292589007),
+                geo(16.315681432114854, 48.35333891624698));
         query.add("corridor.maxAngleDifference", "90");
         query.add("corridor.bidirectional", "false");
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(2, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-        assertEquals(DOCUMENT_ID_3, response.getResults().get(1).getFieldValue(SOLR_FIELD_ID));
-
-        query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
-
-        response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
         assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
     }
