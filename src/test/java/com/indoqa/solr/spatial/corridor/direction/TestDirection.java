@@ -122,7 +122,7 @@ public class TestDirection {
 
     @Test
     public void matchForwardsBoolean() throws IOException, SolrServerException {
-        /*SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
+        SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         String linestring = appendPointsAsCorridorPointGetLinestring(query,
                 geo(16.218802762437235, 48.37957817543284),
@@ -149,7 +149,7 @@ public class TestDirection {
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));*/
+        assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
 
         SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
