@@ -17,8 +17,11 @@
 package com.indoqa.solr.spatial.corridor.direction;
 
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.linearref.LinearLocation;
+import com.vividsolutions.jts.linearref.LocationIndexedLine;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
@@ -30,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
 
 public class InDirectionValueSource extends ValueSource {
 
@@ -43,10 +48,11 @@ public class InDirectionValueSource extends ValueSource {
     private double maxDifferenceAdditionalPointsCheck;
     private double pointsMaxDistanceToRoute;
     private int percentageOfPointsWithinDistance;
+    private boolean alwaysCheckPointDistancePercent;
 
     protected InDirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
             double maxDifference, boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
-            int percentageOfPointsWithinDistance) {
+            int percentageOfPointsWithinDistance, boolean alwaysCheckPointDistancePercent) {
         this.queryPoints = queryPoints;
         this.routeValueSource = routeValueSource;
         this.routeHashValueSource = routeHashValueSource;
@@ -55,6 +61,7 @@ public class InDirectionValueSource extends ValueSource {
         this.maxDifferenceAdditionalPointsCheck = maxDifferenceAdditionalPointsCheck;
         this.pointsMaxDistanceToRoute = pointsMaxDistanceToRoute;
         this.percentageOfPointsWithinDistance = percentageOfPointsWithinDistance;
+        this.alwaysCheckPointDistancePercent = alwaysCheckPointDistancePercent;
     }
 
     @Override
@@ -95,7 +102,8 @@ public class InDirectionValueSource extends ValueSource {
         FunctionValues locationValues = this.routeValueSource.getValues(context, readerContext);
         FunctionValues hashValues = this.routeHashValueSource.getValues(context, readerContext);
         return new InverseCorridorDocValues(this, locationValues, hashValues,
-                this.maxDifference, this.bidirectional, this.maxDifferenceAdditionalPointsCheck, this.pointsMaxDistanceToRoute);
+                this.maxDifference, this.bidirectional, this.maxDifferenceAdditionalPointsCheck, this.pointsMaxDistanceToRoute,
+                this.alwaysCheckPointDistancePercent);
     }
 
     @Override
@@ -110,7 +118,7 @@ public class InDirectionValueSource extends ValueSource {
     }
 
     protected double getValue(LineString lineString) {
-        return AngleUtils.getAngleDifference(lineString, this.queryPoints);
+        return AngleUtils.getAngleDifference(lineString, this.queryPoints, this.pointsMaxDistanceToRoute);
     }
 
     private final class InverseCorridorDocValues extends DoubleDocValues {
@@ -121,10 +129,12 @@ public class InDirectionValueSource extends ValueSource {
         private boolean bidirectional;
         private double maxDifferenceAdditionalPointsCheck;
         private double pointsMaxDistanceToRoute;
+        private boolean alwaysCheckPointDistancePercent;
 
         protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues,
                                            double maxDifference, boolean bidirectional,
-                                           double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute) {
+                                           double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
+                                           boolean alwaysCheckPointDistancePercent) {
             super(vs);
 
             this.routeValues = routeValues;
@@ -133,6 +143,7 @@ public class InDirectionValueSource extends ValueSource {
             this.bidirectional = bidirectional;
             this.maxDifferenceAdditionalPointsCheck = maxDifferenceAdditionalPointsCheck;
             this.pointsMaxDistanceToRoute = pointsMaxDistanceToRoute;
+            this.alwaysCheckPointDistancePercent = alwaysCheckPointDistancePercent;
         }
 
 
@@ -149,6 +160,10 @@ public class InDirectionValueSource extends ValueSource {
 
                 LineString route = LineStringUtils.parseOrGet(routeAsString, routeAsHash);
 
+                if (this.alwaysCheckPointDistancePercent && !(enoughPointsWithinDistance(route))) {
+                    return 0;
+                }
+
                 double difference = InDirectionValueSource.this.getValue(route);
 
                 if (checkAngleDifferenceInFirstOrSecondQuadrant(difference, maxDifference)) {
@@ -160,13 +175,13 @@ public class InDirectionValueSource extends ValueSource {
                 }
 
                 if (checkAngleDifferenceInFirstOrSecondQuadrant(difference, maxDifferenceAdditionalPointsCheck)){
-                    if (percentageOfPointsWithinDistanceTo(route) >= percentageOfPointsWithinDistance) {
+                    if (enoughPointsWithinDistance(route)) {
                         return 1;
                     }
                 }
 
                 if (bidirectional && checkAngleDifferenceInThirdOrFourthQuadrant(difference, maxDifferenceAdditionalPointsCheck)) {
-                    if (percentageOfPointsWithinDistanceTo(route) >= percentageOfPointsWithinDistance) {
+                    if (enoughPointsWithinDistance(route)) {
                         return 1;
                     }
                 }
@@ -178,13 +193,26 @@ public class InDirectionValueSource extends ValueSource {
             return Double.MAX_VALUE;
         }
 
+        private boolean enoughPointsWithinDistance(LineString route) {
+            return percentageOfPointsWithinDistanceTo(route) >= percentageOfPointsWithinDistance;
+        }
+
         private int percentageOfPointsWithinDistanceTo(LineString route) {
+            LocationIndexedLine lineRef = new LocationIndexedLine(route);
+
             int result = 0;
+
             for (Point point : queryPoints) {
-                if (point.isWithinDistance(route, this.pointsMaxDistanceToRoute)) {
+                LinearLocation loc = lineRef.project(point.getCoordinate());
+                Coordinate nearestPoint = lineRef.extractPoint(loc);
+
+                double distance = nearestPoint.distance( point.getCoordinate())* WGS84_TO_KILOMETERS_FACTOR;
+
+                if (distance <= this.pointsMaxDistanceToRoute) {
                     result++;
                 }
             }
+
             return Double.valueOf((double) result / queryPoints.size() * 100).intValue();
         }
 

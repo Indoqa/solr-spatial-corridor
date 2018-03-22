@@ -65,6 +65,7 @@ public class TestDirection {
     public void exactMatchForwards() throws SolrServerException, IOException {
         SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.pointsMaxDistanceToRoute", "0.01");
 
         String linestring = appendPointsAsCorridorPointGetLinestring(query,
                 geo(16.31468318513228, 48.35434292589007),
@@ -124,7 +125,7 @@ public class TestDirection {
         SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         String linestring = appendPointsAsCorridorPointGetLinestring(query,
-    geo(16.218802762437235, 48.37957817543284),
+                geo(16.218802762437235, 48.37957817543284),
                 geo(16.217043233323466, 48.38016606824774),
                 geo(16.21519787352122, 48.38066844400059),
                 geo(16.214060616898905, 48.38093922603797),
@@ -143,15 +144,16 @@ public class TestDirection {
         query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
         query.add("corridor.maxAngleDifference", "5");
         query.add("corridor.maxAngleDifferenceAdditionalPointsCheck", "80");
+        query.add("corridor.pointsMaxDistanceToRoute", "0.01");
         query.add("corridor.bidirectional", "false");
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
         assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
 
-        query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
+        SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
-        linestring = appendPointsAsCorridorPointGetLinestring(query,
+        String linestring = appendPointsAsCorridorPointGetLinestring(query,
                 geo(16.22989637892283, 48.37665998879075),
                 geo(16.210563016343485, 48.3813489592768),
                 geo(16.190306973863017, 48.38183350911145),
@@ -160,23 +162,27 @@ public class TestDirection {
         query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
         query.add("corridor.maxAngleDifference", "5");
         query.add("corridor.maxAngleDifferenceAdditionalPointsCheck", "10");
+        query.add("corridor.pointsMaxDistanceToRoute", "0.0001");
+        query.add("corridor.percentageOfPointsWithinDistance", "100");
+        query.add("corridor.alwaysCheckPointDistancePercent", "true");
         query.add("corridor.bidirectional", "false");
 
         // not all points are within route distance
-        response = infrastructureRule.getSolrClient().query(query);
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
 
         // only 4 / 5 percent are withinDistance
-        query.add("corridor.percentageOfPointsWithinDistance", "90");
+        query.set("corridor.percentageOfPointsWithinDistance", "90");
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
 
         query.set("corridor.percentageOfPointsWithinDistance", "80");
+        query.set("corridor.pointsMaxDistanceToRoute", "0.01");
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
         assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
 
-        query.add("corridor.pointsMaxDistanceToRoute", "0.000000001");
+        query.set("corridor.pointsMaxDistanceToRoute", "0.000000001");
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
     }
