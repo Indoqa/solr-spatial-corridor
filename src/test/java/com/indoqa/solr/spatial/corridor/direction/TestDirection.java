@@ -151,9 +151,9 @@ public class TestDirection {
         assertEquals(1, response.getResults().getNumFound());
         assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
 
-        SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
+        query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
-        String linestring = appendPointsAsCorridorPointGetLinestring(query,
+        linestring = appendPointsAsCorridorPointGetLinestring(query,
                 geo(16.22989637892283, 48.37665998879075),
                 geo(16.210563016343485, 48.3813489592768),
                 geo(16.190306973863017, 48.38183350911145),
@@ -168,7 +168,7 @@ public class TestDirection {
         query.add("corridor.bidirectional", "false");
 
         // not all points are within route distance
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
 
         // only 4 / 5 percent are withinDistance
