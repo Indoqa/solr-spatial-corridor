@@ -54,11 +54,14 @@ public class DirectionValueSourceParser extends ValueSourceParser {
             queryPoints.add(WktUtils.parsePoint(queryPointParameter));
         }
 
-        return this.createValueSource(queryPoints, new LineStringValueSource(fp.parseArg()), fp.parseValueSource());
+        double pointsMaxDistanceToRoute = fp.getParams().getDouble("corridor.pointsMaxDistanceToRoute", 0.01);
+
+        return this.createValueSource(queryPoints, new LineStringValueSource(fp.parseArg()), fp.parseValueSource(), pointsMaxDistanceToRoute);
     }
 
-    protected ValueSource createValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
-        return new DirectionValueSource(queryPoints, routeValueSource, routeHashValueSource);
+    protected ValueSource createValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
+                                            double pointsMaxDistanceToRoute) {
+        return new DirectionValueSource(queryPoints, routeValueSource, routeHashValueSource, pointsMaxDistanceToRoute);
     }
 
     protected String getDescription() {

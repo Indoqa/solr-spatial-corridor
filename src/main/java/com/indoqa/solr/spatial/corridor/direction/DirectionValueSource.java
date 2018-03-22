@@ -42,11 +42,14 @@ public class DirectionValueSource extends ValueSource {
     private List<Point> queryPoints;
     private ValueSource routeValueSource;
     private ValueSource routeHashValueSource;
+    private double pointsMaxDistanceToRoute;
 
-    protected DirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource) {
+    protected DirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
+                                   double pointsMaxDistanceToRoute) {
         this.queryPoints = queryPoints;
         this.routeValueSource = routeValueSource;
         this.routeHashValueSource = routeHashValueSource;
+        this.pointsMaxDistanceToRoute = pointsMaxDistanceToRoute;
     }
 
     @Override
@@ -101,7 +104,7 @@ public class DirectionValueSource extends ValueSource {
     }
 
     protected double getValue(LineString lineString) {
-        return AngleUtils.getAngleDifference(lineString, this.queryPoints);
+        return AngleUtils.getAngleDifference(lineString, this.queryPoints, this.pointsMaxDistanceToRoute);
     }
 
     private final class InverseCorridorDocValues extends DoubleDocValues {

@@ -37,7 +37,7 @@ public class AngleUtils {
         return angleInRadians * (180 / PI);
     }
 
-    protected static double getAngleDifference(LineString lineString, List<Point> queryPoints) {
+    protected static double getAngleDifference(LineString lineString, List<Point> queryPoints, double maxDistance) {
         if (lineString == null || lineString.isEmpty()) {
             return Double.MAX_VALUE;
         }
@@ -51,7 +51,7 @@ public class AngleUtils {
         Coordinate queryCoordinate1 = queryPoints.get(0).getCoordinate();
         Coordinate queryCoordinate2 = queryPoints.get(1).getCoordinate();
 
-        double angleDifference1 = getAngleDifference(lineString, queryCoordinate1, queryCoordinate2, indexedLineString);
+        double angleDifference1 = getAngleDifference(lineString, queryCoordinate1, queryCoordinate2, indexedLineString, maxDistance);
 
         if (queryPoints.size() < 3) {
             return angleDifference1;
@@ -60,20 +60,20 @@ public class AngleUtils {
         Coordinate queryCoordinate3 = queryPoints.get(queryPoints.size() - 2).getCoordinate();
         Coordinate queryCoordinate4 = queryPoints.get(queryPoints.size() - 1).getCoordinate();
 
-        double angleDifference2 = getAngleDifference(lineString, queryCoordinate3, queryCoordinate4, indexedLineString);
+        double angleDifference2 = getAngleDifference(lineString, queryCoordinate3, queryCoordinate4, indexedLineString, maxDistance);
 
         int middlePoint = queryPoints.size() / 2;
 
         Coordinate queryCoordinate5 = queryPoints.get(middlePoint).getCoordinate();
         Coordinate queryCoordinate6 = queryPoints.get(middlePoint + 1).getCoordinate();
 
-        double angleDifference3 = getAngleDifference(lineString, queryCoordinate5, queryCoordinate6, indexedLineString);
+        double angleDifference3 = getAngleDifference(lineString, queryCoordinate5, queryCoordinate6, indexedLineString, maxDistance);
 
         return Math.min(Math.min(angleDifference1, angleDifference2), angleDifference3);
     }
 
     private static double getAngleDifference(LineString lineString, Coordinate queryCoordinate1, Coordinate queryCoordinate2,
-            LocationIndexedLine indexedLineString) {
+            LocationIndexedLine indexedLineString, double maxDistance) {
         Coordinate routeCoordinate1;
         Coordinate routeCoordinate2;
 
@@ -81,7 +81,7 @@ public class AngleUtils {
 
         double distance = intersection.getCoordinate(lineString).distance(queryCoordinate1) * WGS84_TO_KILOMETERS_FACTOR;
 
-        if (distance > 0.01) {
+        if (distance > maxDistance) {
             return Double.MAX_VALUE;
         }
 
