@@ -29,6 +29,7 @@ import com.indoqa.solr.spatial.corridor.TestGeoPoint;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.After;
 import org.junit.Before;
@@ -48,6 +49,42 @@ public class TestDirection {
 
     @ClassRule
     public static EmbeddedSolrInfrastructureRule infrastructureRule = new EmbeddedSolrInfrastructureRule();
+
+    @Test
+    public void angleDistance() throws IOException, SolrServerException {
+        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
+        query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.point", "POINT(16.891858798594868 48.22143885086025)");
+        query.add("corridor.point", "POINT(16.89467367522139 48.22112128651476)");
+        query.addField("angleDistance:angleDistance(geo, geoHash)");
+        query.addField(SOLR_FIELD_ID);
+
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(1, response.getResults().getNumFound());
+        SolrDocument document = response.getResults().get(0);
+        assertEquals(DOCUMENT_ID_2, document.getFieldValue(SOLR_FIELD_ID));
+        assertEquals(0.0, (double) document.getFieldValue("angleDistance"), 0.00001d);
+
+        query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
+        query.setRows(Integer.MAX_VALUE);
+        query.add("corridor.point", "POINT(16.41654 48.19311)");
+        query.addField("angleDistance:angleDistance(geo, geoHash)");
+        query.addField(SOLR_FIELD_ID);
+
+        response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(3, response.getResults().getNumFound());
+        document = response.getResults().get(0);
+        assertEquals(DOCUMENT_ID_1, document.getFieldValue(SOLR_FIELD_ID));
+        assertEquals(0.006988142097925569, (double) document.getFieldValue("angleDistance"), 0.00001d);
+
+        document = response.getResults().get(1);
+        assertEquals(DOCUMENT_ID_2, document.getFieldValue(SOLR_FIELD_ID));
+        assertEquals(3.1585326004421583, (double) document.getFieldValue("angleDistance"), 0.00001d);
+
+        document = response.getResults().get(2);
+        assertEquals(DOCUMENT_ID_3, document.getFieldValue(SOLR_FIELD_ID));
+        assertEquals(28.662971212100274, (double) document.getFieldValue("angleDistance"), 0.00001d);
+    }
 
     @Test
     public void exactMatchBackwards() throws SolrServerException, IOException {

@@ -72,6 +72,11 @@ public class AngleUtils {
         return Math.min(Math.min(angleDifference1, angleDifference2), angleDifference3);
     }
 
+    protected static double getAngleDistance(LineString lineString, Coordinate queryCoordinate1, LocationIndexedLine indexedLineString) {
+        LinearLocation intersection = indexedLineString.project(queryCoordinate1);
+        return intersection.getCoordinate(lineString).distance(queryCoordinate1) * WGS84_TO_KILOMETERS_FACTOR;
+    }
+
     private static double getAngleDifference(LineString lineString, Coordinate queryCoordinate1, Coordinate queryCoordinate2,
             LocationIndexedLine indexedLineString, double maxDistance) {
         Coordinate routeCoordinate1;

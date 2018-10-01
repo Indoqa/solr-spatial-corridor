@@ -262,6 +262,7 @@
     <valueSourceParser name="pointsPosition"   class="com.indoqa.solr.spatial.corridor.query.points.PointsPositionValueSourceParser" />
     <valueSourceParser name="pointsDirection" class="com.indoqa.solr.spatial.corridor.direction.DirectionValueSourceParser" />
     <valueSourceParser name="inPointsDirection" class="com.indoqa.solr.spatial.corridor.direction.InDirectionValueSourceParser" />
+    <valueSourceParser name="angleDistance" class="com.indoqa.solr.spatial.corridor.direction.AngleDistanceValueSourceParser" />
 
     <updateRequestProcessorChain name="linestringHashCalculation" default="true">
       <processor class="com.indoqa.solr.spatial.corridor.processor.LinestringHashUpdateProcessorFactory">
