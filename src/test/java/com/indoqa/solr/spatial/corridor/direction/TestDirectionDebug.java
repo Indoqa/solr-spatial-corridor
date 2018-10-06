@@ -19,12 +19,9 @@ package com.indoqa.solr.spatial.corridor.direction;
 import static com.indoqa.solr.spatial.corridor.TestGeoPoint.geo;
 import static org.junit.Assert.assertEquals;
 
-import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
+import com.indoqa.solr.spatial.corridor.EmbeddedSolrInfrastructureRule;
 import com.indoqa.solr.spatial.corridor.TestGeoPoint;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -36,9 +33,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import com.indoqa.solr.spatial.corridor.EmbeddedSolrInfrastructureRule;
-
-public class TestDirection {
+public class TestDirectionDebug {
 
     private static final String SOLR_FIELD_ID = "id";
     private static final String SOLR_FIELD_GEO = "geo";
@@ -51,128 +46,47 @@ public class TestDirection {
     public static EmbeddedSolrInfrastructureRule infrastructureRule = new EmbeddedSolrInfrastructureRule();
 
     @Test
-    public void angleDistance() throws IOException, SolrServerException {
+    public void pointsDirectionDebug() throws IOException, SolrServerException {
         SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.point", "POINT(16.891858798594868 48.22143885086025)");
-        query.add("corridor.point", "POINT(16.89467367522139 48.22112128651476)");
-        query.addField(SOLR_FIELD_ID);
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        SolrDocument document = response.getResults().get(0);
-        assertEquals(DOCUMENT_ID_2, document.getFieldValue(SOLR_FIELD_ID));
-
-        query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
         query.add("corridor.point", "POINT(16.41654 48.19311)");
+        query.addField("inPointsDirectionDebug:inPointsDirectionDebug(geo, geoHash)");
+        query.addField("pointsDirectionDebug:pointsDirectionDebug(geo, geoHash)");
         query.addField(SOLR_FIELD_ID);
 
-        response = infrastructureRule.getSolrClient().query(query);
+        QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(3, response.getResults().getNumFound());
-        document = response.getResults().get(0);
+        SolrDocument document = response.getResults().get(0);
         assertEquals(DOCUMENT_ID_1, document.getFieldValue(SOLR_FIELD_ID));
-
-        document = response.getResults().get(1);
-        assertEquals(DOCUMENT_ID_2, document.getFieldValue(SOLR_FIELD_ID));
-
-        document = response.getResults().get(2);
-        assertEquals(DOCUMENT_ID_3, document.getFieldValue(SOLR_FIELD_ID));
+        assertEquals("{\"angleDifference\":{\"querypoints\":\"less than 2\"},\"difference\":0.0,\"maxDifference\":0.0,\"firstOrSecondQuadrant\":\"true\",\"result\":1.0}", document.getFieldValue("inPointsDirectionDebug"));
+        assertEquals("{\"angleDifference\":{\"querypoints\":\"less than 2\"},\"result\":0.0}", document.getFieldValue("pointsDirectionDebug"));
     }
 
     @Test
-    public void exactMatchBackwards() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.point", "POINT(16.891858798594868 48.22143885086025)");
-        query.add("corridor.point", "POINT(16.89467367522139 48.22112128651476)");
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_2, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-    }
-
-    @Test
-    public void exactMatchForwards() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.pointsMaxDistanceToRoute", "0.01");
-
-        String linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.31468318513228, 48.35434292589007),
-                geo(16.315681432114854, 48.35333891624698)
-                );
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-    }
-
-    @Test
-    public void exactMatchBackwardsBoolean() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=1} inPointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.point", "POINT(16.891858798594868 48.22143885086025)");
-        query.add("corridor.point", "POINT(16.89467367522139 48.22112128651476)");
-        query.add("corridor.maxAngleDifference", "90");
-        query.add("corridor.bidirectional", "false");
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_2, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-    }
-
-    @Test
-    public void exactMatchBidirectionalBoolean() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=1} inPointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-
-        String linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.31468318513228, 48.35434292589007),
-                geo(16.315681432114854, 48.35333891624698));
-        query.add("corridor.maxAngleDifference", "90");
-        query.add("corridor.bidirectional", "true");
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-    }
-
-    @Test
-    public void exactMatchForwardsBoolean() throws SolrServerException, IOException {
+    public void db() throws IOException, SolrServerException {
         SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
         query.setRows(Integer.MAX_VALUE);
-        String linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.31468318513228, 48.35434292589007),
-                geo(16.315681432114854, 48.35333891624698));
-        query.add("corridor.maxAngleDifference", "90");
-        query.add("corridor.bidirectional", "false");
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-    }
-
-    @Test
-    public void matchForwardsBoolean() throws IOException, SolrServerException {
-        SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        String linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.218802762437235, 48.37957817543284),
-                geo(16.217043233323466, 48.38016606824774),
-                geo(16.21519787352122, 48.38066844400059),
-                geo(16.214060616898905, 48.38093922603797),
-                geo(16.213245225358378, 48.3810674907108),
-                geo(16.21242983381785, 48.381210006634916),
-                geo(16.211550069260966, 48.38129551599785),
-                geo(16.21043427031077, 48.38135252216),
-                geo(16.20933188240565, 48.381372118013566),
-                geo(16.20820803682841, 48.381363210808374),
-                geo(16.20598180334605, 48.38123138398915),
-                geo(16.203766298699747, 48.381099556828545),
-                geo(16.201507878709208, 48.38103898747814),
-                geo(16.19924945871867, 48.38101048422946),
-                geo(16.19694812338389, 48.38108174232117),
-                geo(16.192538571763407, 48.3814665342928));
+        String linestring = TestDirection.appendPointsAsCorridorPointGetLinestring(query,
+            geo(16.218802762437235, 48.37957817543284),
+            geo(16.217043233323466, 48.38016606824774),
+            geo(16.21519787352122, 48.38066844400059),
+            geo(16.214060616898905, 48.38093922603797),
+            geo(16.213245225358378, 48.3810674907108),
+            geo(16.21242983381785, 48.381210006634916),
+            geo(16.211550069260966, 48.38129551599785),
+            geo(16.21043427031077, 48.38135252216),
+            geo(16.20933188240565, 48.381372118013566),
+            geo(16.20820803682841, 48.381363210808374),
+            geo(16.20598180334605, 48.38123138398915),
+            geo(16.203766298699747, 48.381099556828545),
+            geo(16.201507878709208, 48.38103898747814),
+            geo(16.19924945871867, 48.38101048422946),
+            geo(16.19694812338389, 48.38108174232117),
+            geo(16.192538571763407, 48.3814665342928));
         query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
+        query.addField("inPointsDirectionDebug:inPointsDirectionDebug(geo, geoHash)");
+        query.addField("pointsDirectionDebug:pointsDirectionDebug(geo, geoHash)");
+        query.addField(SOLR_FIELD_ID);
         query.add("corridor.maxAngleDifference", "5");
         query.add("corridor.maxAngleDifferenceAdditionalPointsCheck", "80");
         query.add("corridor.pointsMaxDistanceToRoute", "0.01");
@@ -180,303 +94,12 @@ public class TestDirection {
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
+        SolrDocument document = response.getResults().get(0);
+        assertEquals(DOCUMENT_ID_3, document.getFieldValue(SOLR_FIELD_ID));
+        assertEquals("{\"angleDifference\":{\"maxDistance\":0.01,\"queryCoordinate1\":\"(16.218802762437235,48.37957817543284)\",\"queryCoordinate2\":\"(16.217043233323466,48.38016606824774)\",\"angleDifference1\":1.3596204551641335,\"distance_1\":0.0015867869225114543,\"distance_2\":8.889810163500634E-4,\"routeAngleAtIntersection_1\":162.88414663191193,\"routeAngleAtIntersection_2\":176.0268467085059,\"queryAngle_1\":161.5245261767478,\"queryAngle_2\":175.01281524557862,\"queryCoordinate3\":\"(16.19694812338389,48.38108174232117)\",\"queryCoordinate4\":\"(16.192538571763407,48.3814665342928)\",\"angleDifference2\":1.014031462927278,\"middlePoint\":8,\"distance_3\":2.2026274544883202E-4,\"routeAngleAtIntersection_3\":179.1351360162028,\"queryAngle_3\":-179.54590328994647,\"queryCoordinate5\":\"(16.20933188240565,48.381372118013566)\",\"queryCoordinate6\":\"(16.20820803682841,48.381363210808374)\",\"angleDifference3\":358.6810393061493,\"minAngleDifference\":1.014031462927278},\"difference\":1.014031462927278,\"maxDifference\":5.0,\"firstOrSecondQuadrant\":\"true\",\"result\":1.0}", document
+            .getFieldValue("inPointsDirectionDebug"));
+        assertEquals("{\"angleDifference\":{\"maxDistance\":0.01,\"queryCoordinate1\":\"(16.218802762437235,48.37957817543284)\",\"queryCoordinate2\":\"(16.217043233323466,48.38016606824774)\",\"angleDifference1\":1.3596204551641335,\"distance_1\":0.0015867869225114543,\"distance_2\":8.889810163500634E-4,\"routeAngleAtIntersection_1\":162.88414663191193,\"routeAngleAtIntersection_2\":176.0268467085059,\"queryAngle_1\":161.5245261767478,\"queryAngle_2\":175.01281524557862,\"queryCoordinate3\":\"(16.19694812338389,48.38108174232117)\",\"queryCoordinate4\":\"(16.192538571763407,48.3814665342928)\",\"angleDifference2\":1.014031462927278,\"middlePoint\":8,\"distance_3\":2.2026274544883202E-4,\"routeAngleAtIntersection_3\":179.1351360162028,\"queryAngle_3\":-179.54590328994647,\"queryCoordinate5\":\"(16.20933188240565,48.381372118013566)\",\"queryCoordinate6\":\"(16.20820803682841,48.381363210808374)\",\"angleDifference3\":358.6810393061493,\"minAngleDifference\":1.014031462927278},\"result\":1.014031462927278}", document.getFieldValue("pointsDirectionDebug"));
 
-        query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        linestring = appendPointsAsCorridorPointGetLinestring(query,
-                geo(16.22989637892283, 48.37665998879075),
-                geo(16.210563016343485, 48.3813489592768),
-                geo(16.190306973863017, 48.38183350911145),
-                geo(16.177904439378153, 48.38779024485453),
-                geo(16.178333592820536, 48.38077889474244));
-        query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
-        query.add("corridor.maxAngleDifference", "5");
-        query.add("corridor.maxAngleDifferenceAdditionalPointsCheck", "10");
-        query.add("corridor.pointsMaxDistanceToRoute", "0.0001");
-        query.add("corridor.percentageOfPointsWithinDistance", "100");
-        query.add("corridor.alwaysCheckPointDistancePercent", "true");
-        query.add("corridor.bidirectional", "false");
-
-
-        // not all points are within route distance
-        response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(0, response.getResults().getNumFound());
-
-        // only 4 / 5 percent are withinDistance
-        query.set("corridor.percentageOfPointsWithinDistance", "90");
-        response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(0, response.getResults().getNumFound());
-
-        query.set("corridor.percentageOfPointsWithinDistance", "80");
-        query.set("corridor.pointsMaxDistanceToRoute", "0.01");
-        response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_3, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-
-        query.set("corridor.pointsMaxDistanceToRoute", "0.000000001");
-        response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(0, response.getResults().getNumFound());
-    }
-
-    @Test
-    public void booleanWithDefaults() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=1}inPointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.point", "POINT(16.44175 48.2103)");
-        query.add("corridor.point", "POINT(16.43768 48.20753)");
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(0, response.getResults().getNumFound());
-    }
-
-    @Test
-    public void notEnoughPoints() throws SolrServerException, IOException {
-        SolrQuery query = new SolrQuery("{!frange l=0 u=90}pointsDirection(geo, geoHash)");
-        query.setRows(Integer.MAX_VALUE);
-        query.add("corridor.point", "POINT(16.41654 48.19311)");
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(3, response.getResults().getNumFound());
-        assertEquals(DOCUMENT_ID_1, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
-        assertEquals(DOCUMENT_ID_2, response.getResults().get(1).getFieldValue(SOLR_FIELD_ID));
-        assertEquals(DOCUMENT_ID_3, response.getResults().get(2).getFieldValue(SOLR_FIELD_ID));
-    }
-
-    @Test
-    public void testContains() throws IOException, SolrServerException {
-        SolrQuery query = new SolrQuery("*:*");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115321848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115322848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115323848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115324848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115325848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115326848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115328848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115329848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115320848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115321848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.20711532248342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327348342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327448342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327548342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327648342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327748342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327948342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327048342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327818342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327828342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327838342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207135327848342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207145327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207155327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207165327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207175327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207185327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207195327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207105327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207125327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207135327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207145327858342 48.384746675352))");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207155327858342 48.384746675352))");
-
-        query.setRows(Integer.MAX_VALUE);
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-
-        query = new SolrQuery("*:*");
-        query.addFilterQuery("{!field f=geoGeom}Contains(POINT(16.207115327848342 48.384746675352))");
-        query.setRows(Integer.MAX_VALUE);
-        response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-
-    }
-
-    @Test
-    public void intersects() throws IOException, SolrServerException {
-        SolrInputDocument solrDocument = new SolrInputDocument();
-        solrDocument.addField(SOLR_FIELD_ID, "intersects");
-        solrDocument.addField(SOLR_FIELD_GEO, "LINESTRING(14.72702 48.11615,14.8369 48.13587)");
-
-        infrastructureRule.getSolrClient().add(solrDocument);
-        infrastructureRule.getSolrClient().commit(true, true);
-
-        SolrQuery query = new SolrQuery("*:*");
-        query.addFilterQuery("{!field f=geoGeom}Intersects(LINESTRING(14.72702 48.19311, 14.8369 48.13587))");
-
-        query.setRows(Integer.MAX_VALUE);
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals("intersects", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
-    }
-
-    @Test
-    public void intersects2() throws IOException, SolrServerException {
-        SolrInputDocument solrDocument = new SolrInputDocument();
-        solrDocument.addField(SOLR_FIELD_ID, "intersects2");
-        solrDocument.addField(SOLR_FIELD_GEO, "LINESTRING(16.38271045 48.14339643,  16.38271065 48.14410595)");
-
-        infrastructureRule.getSolrClient().add(solrDocument);
-        infrastructureRule.getSolrClient().commit(true, true);
-
-        SolrQuery query = new SolrQuery("*:*");
-        query.addField("id");
-        query.addField("pointsposition");
-        query.addField("pointsposition:pointsPosition(geo, geoHash)");
-        query.addField("pointsdirection:pointsDirection(geo, geoHash)");
-        query.addFilterQuery("{!frange l=0 u=0.01 cache=false}pointsDistance(geo, geoHash)");
-        query.addFilterQuery("{!frange l=0 u=90.0 cache=false}pointsDirection(geo, geoHash)");
-         query.add("corridor.point", "POINT(16.38271045 48.14339643)");
-         query.add("corridor.point", "POINT(16.38271065 48.14410595)");
-         query.add("corridor.point", "POINT(16.38268436 48.14416652)");
-         query.add("corridor.point", "POINT(16.38269672 48.14443787)");
-         query.add("corridor.point", "POINT(16.38267045 48.14449773)");
-         query.add("corridor.point", "POINT(16.38267664 48.14497039)");
-         query.add("corridor.point", "POINT(16.38265036 48.14503062)");
-         query.add("corridor.point", "POINT(16.38266341 48.14526763)");
-         query.add("corridor.point", "POINT(16.38265021 48.14556425)");
-         query.add("corridor.point", "POINT(16.38263701 48.14586088)");
-         query.add("corridor.point", "POINT(16.38262381 48.1461575)");
-         query.add("corridor.point", "POINT(16.38259756 48.14621712)");
-         query.add("corridor.point", "POINT(16.38261119 48.14640734)");
-         query.add("corridor.point", "POINT(16.38258499 48.14646639)");
-         query.add("corridor.point", "POINT(16.38260274 48.14651863)");
-         query.add("corridor.point", "POINT(16.38257666 48.14657542)");
-         query.add("corridor.point", "POINT(16.38258383 48.14676431)");
-         query.add("corridor.point", "POINT(16.38255775 48.14682103)");
-         query.add("corridor.point", "POINT(16.38251804 48.14762496)");
-         query.add("corridor.point", "POINT(16.38249195 48.14768172)");
-         query.add("corridor.point", "POINT(16.38248834 48.14801218)");
-         query.add("corridor.point", "POINT(16.38246226 48.14806892)");
-         query.add("corridor.point", "POINT(16.38248166 48.14838898)");
-         query.add("corridor.point", "POINT(16.38247474 48.14877103)");
-         query.add("corridor.point", "POINT(16.38246781 48.14915308)");
-         query.add("corridor.point", "POINT(16.38246089 48.14953513)");
-         query.add("corridor.point", "POINT(16.38243456 48.14959712)");
-         query.add("corridor.point", "POINT(16.38245619 48.14979294)");
-         query.add("corridor.point", "POINT(16.38242986 48.14985492)");
-         query.add("corridor.point", "POINT(16.38243916 48.15013669)");
-         query.add("corridor.point", "POINT(16.38242224 48.15047761)");
-         query.add("corridor.point", "POINT(16.38240531 48.15081854)");
-         query.add("corridor.point", "POINT(16.38238839 48.15115946)");
-         query.add("corridor.point", "POINT(16.38238844 48.15115824)");
-         query.add("corridor.point", "POINT(16.38237395 48.15156069)");
-         query.add("corridor.point", "POINT(16.38237145 48.15163397)");
-         query.add("corridor.point", "POINT(16.38235697 48.15205845)");
-         query.add("corridor.point", "POINT(16.38232785 48.15223582)");
-         query.add("corridor.point", "POINT(16.38224998 48.15250296)");
-         query.add("corridor.point", "POINT(16.38224955 48.15250417)");
-         query.add("corridor.point", "POINT(16.38219629 48.15265162)");
-         query.add("corridor.point", "POINT(16.38215142 48.15284092)");
-         query.add("corridor.point", "POINT(16.38212696 48.15288622)");
-         query.add("corridor.point", "POINT(16.38212774 48.1531097)");
-         query.add("corridor.point", "POINT(16.38210176 48.15316522)");
-         query.add("corridor.point", "POINT(16.38210174 48.15339764)");
-         query.add("corridor.point", "POINT(16.38207574 48.15368559)");
-         query.add("corridor.point", "POINT(16.38204974 48.15397354)");
-         query.add("corridor.point", "POINT(16.38202374 48.15426149)");
-         query.add("corridor.point", "POINT(16.38199776 48.15431702)");
-         query.add("corridor.point", "POINT(16.38201386 48.15459709)");
-         query.add("corridor.point", "POINT(16.38201384 48.15459774)");
-         query.add("corridor.point", "POINT(16.38200368 48.15487091)");
-         query.add("corridor.point", "POINT(16.38200572 48.1549708)");
-         query.add("corridor.point", "POINT(16.38200578 48.15497353)");
-         query.add("corridor.point", "POINT(16.38205396 48.15533472)");
-         query.add("corridor.point", "POINT(16.3820704 48.1554461)");
-         query.add("corridor.point", "POINT(16.38211166 48.15570793)");
-         query.add("corridor.point", "POINT(16.38214687 48.15593141)");
-         query.add("corridor.point", "POINT(16.38219812 48.15604942)");
-         query.add("corridor.point", "POINT(16.38220515 48.15607497)");
-         query.add("corridor.point", "POINT(16.38222187 48.1562129)");
-         query.add("corridor.point", "POINT(16.38225027 48.1563377)");
-         query.add("corridor.point", "POINT(16.38236753 48.1567184)");
-         query.add("corridor.point", "POINT(16.38236754 48.15671842)");
-         query.add("corridor.point", "POINT(16.38237714 48.15674814)");
-         query.add("corridor.point", "POINT(16.38244898 48.15697164)");
-         query.add("corridor.point", "POINT(16.38252717 48.15717077)");
-         query.add("corridor.point", "POINT(16.38270832 48.15762191)");
-         query.add("corridor.point", "POINT(16.38288948 48.15807305)");
-         query.add("corridor.point", "POINT(16.38303331 48.15843124)");
-         query.add("corridor.point", "POINT(16.38306822 48.15852873)");
-         query.add("corridor.point", "POINT(16.38306818 48.15852863)");
-         query.add("corridor.point", "POINT(16.3831645 48.15879632)");
-         query.add("corridor.point", "POINT(16.38318319 48.15885038)");
-         query.add("corridor.point", "POINT(16.38329445 48.15917225)");
-         query.add("corridor.point", "POINT(16.3834057 48.15949413)");
-         query.add("corridor.point", "POINT(16.38351696 48.159816)");
-         query.add("corridor.point", "POINT(16.3834319 48.1598454)");
-         query.add("corridor.point", "POINT(16.383858 48.1599123)");
-         query.add("corridor.point", "POINT(16.3840103 48.159944)");
-         query.add("corridor.point", "POINT(16.3842151 48.160019)");
-         query.add("corridor.point", "POINT(16.3844333 48.1601118)");
-         query.add("corridor.point", "POINT(16.3845602 48.1601114)");
-         query.add("corridor.point", "POINT(16.3846354 48.1601127)");
-         query.add("corridor.point", "POINT(16.384699 48.1601075)");
-         query.add("corridor.point", "POINT(16.3847867 48.1600939)");
-         query.add("corridor.point", "POINT(16.3848782 48.1600655)");
-         query.add("corridor.point", "POINT(16.3849303 48.1600468)");
-         query.add("corridor.point", "POINT(16.385007 48.1600535)");
-         query.add("corridor.point", "POINT(16.38494336 48.15998986)");
-         query.add("corridor.point", "POINT(16.38560008 48.15964061)");
-         query.add("corridor.point", "POINT(16.38557827 48.15965665)");
-         query.add("corridor.point", "POINT(16.38596188 48.15944709)");
-         query.add("corridor.point", "POINT(16.3863243 48.15925324)");
-         query.add("corridor.point", "POINT(16.38668673 48.15905939)");
-//         query.add("corridor.point", "POINT(16.38704915 48.15886554)");
-        query.addFilterQuery("{!field f=geoGeom}Intersects(LINESTRING(16.38271045 48.14339643,16.38271065 48.14410595,16.38268436 48.14416652,16.38269672 48.14443787,16.38267045 48.14449773,16.38267664 48.14497039,16.38265036 48.14503062,16.38266341 48.14526763,16.38265021 48.14556425,16.38263701 48.14586088,16.38262381 48.1461575,16.38259756 48.14621712,16.38261119 48.14640734,16.38258499 48.14646639,16.38260274 48.14651863,16.38257666 48.14657542,16.38258383 48.14676431,16.38255775 48.14682103,16.38251804 48.14762496,16.38249195 48.14768172,16.38248834 48.14801218,16.38246226 48.14806892,16.38248166 48.14838898,16.38247474 48.14877103,16.38246781 48.14915308,16.38246089 48.14953513,16.38243456 48.14959712,16.38245619 48.14979294,16.38242986 48.14985492,16.38243916 48.15013669,16.38242224 48.15047761,16.38240531 48.15081854,16.38238839 48.15115946,16.38238844 48.15115824,16.38237395 48.15156069,16.38237145 48.15163397, 16.38235697 48.15205845,16.38232785 48.15223582,16.38224998 48.15250296,16.38224955 48.15250417, 16.38219629 48.15265162,16.38215142 48.15284092,16.38212696 48.15288622,16.38212774 48.1531097, 16.38210176 48.15316522,16.38210174 48.15339764,16.38207574 48.15368559,16.38204974 48.15397354,16.38202374 48.15426149,16.38199776 48.15431702,16.38201386 48.15459709,16.38201384 48.15459774,16.38200368 48.15487091, 16.38200572 48.1549708,16.38200578 48.15497353,16.38205396 48.15533472,16.3820704 48.1554461, 16.38211166 48.15570793,16.38214687 48.15593141,16.38219812 48.15604942, 16.38220515 48.15607497,16.38222187 48.1562129,16.38225027 48.1563377,16.38236753 48.1567184,16.38236754 48.15671842,16.38237714 48.15674814,16.38244898 48.15697164,16.38252717 48.15717077,16.38270832 48.15762191,16.38288948 48.15807305, 16.38303331 48.15843124,16.38306822 48.15852873,16.38306818 48.15852863,16.3831645 48.15879632,16.38318319 48.15885038, 16.38329445 48.15917225,16.3834057 48.15949413, 16.38351696 48.159816,16.3834319 48.1598454,16.383858 48.1599123,16.3840103 48.159944,16.3842151 48.160019,16.3844333 48.1601118,16.3845602 48.1601114,16.3846354 48.1601127,16.384699 48.1601075,16.3847867 48.1600939,16.3848782 48.1600655,16.3849303 48.1600468,16.385007 48.1600535,16.38494336 48.15998986,16.38560008 48.15964061,16.38557827 48.15965665,16.38596188 48.15944709,16.3863243 48.15925324,16.38668673 48.15905939,16.38704915 48.15886554))");
-        
-        
-
-        query.setRows(Integer.MAX_VALUE);
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals("intersects2", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
-    }
-
-    @Test()
-    public void intersects3() throws IOException, SolrServerException {
-        SolrInputDocument solrDocument = new SolrInputDocument();
-        solrDocument.addField(SOLR_FIELD_ID, "intersects3");
-        solrDocument.addField(SOLR_FIELD_GEO, "LINESTRING(9.747609347051139 47.409453865628436,9.747684123860608 47.4116993751579,9.745624582473056 47.41106082487543,9.743565041085617 47.41262945960319,9.743520075005335 47.41239211160078,9.743520075005335 47.41177743616075,9.743520075005335 47.41148531066436,9.743520075005335 47.41122361353119,9.743394169980434 47.40990293606566,9.743349203900152 47.409142162123985,9.74330423781987 47.40885002201029,9.74330423781987 47.408588311782445,9.74325927173959 47.408472671965164,9.743214305659308 47.40788229630981,9.743178332795082 47.40762058127347,9.743088400634406 47.40712149318118,9.73991345543277 47.40476713491394,9.749051112555094 47.40701973595363,9.747609347051139 47.409453865628436)");
-
-        infrastructureRule.getSolrClient().add(solrDocument);
-        infrastructureRule.getSolrClient().commit(true, true);
-
-        SolrQuery query = new SolrQuery("*:*");
-        query.setRows(Integer.MAX_VALUE);
-        query.addField("id");
-        query.addField("pointsposition");
-        query.addField("pointsposition:pointsPosition(geo, geoHash)");
-        query.addField("pointsdirection:pointsDirection(geo, geoHash)");
-        query.addFilterQuery("{!frange l=0 u=0.01 cache=false}pointsDistance(geo, geoHash)");
-        query.addFilterQuery("{!frange l=0 u=90.0 cache=false}pointsDirection(geo, geoHash)");
-        query.addFilterQuery("{!field f=geoGeom}Intersects(LINESTRING(9.743735912190722 47.41315283859754,9.743735912190722 47.41312240972865,9.7435650410856 47.41262945960319,9.743520075005302 47.41239211160078,9.743520075005302 47.41177743616075,9.743520075005302 47.41148531066436,9.743520075005302 47.41122361353119,9.743394169980473 47.40990293606566,9.743349203900177 47.409142162123985,9.743304237819881 47.40885002201029,9.743304237819881 47.408588311782445,9.743259271739586 47.408472671965164,9.74321430565929 47.40788229630981,9.743178332795052 47.40762058127347,9.743088400634461 47.40712149318118,9.742917529529336 47.40682934185967,9.74265672626362 47.40648241006073,9.742566794103027 47.406360679063425))");
-        query.add("corridor.point", "POINT(9.743735912190722 47.41315283859754)");
-        query.add("corridor.point", "POINT(9.743735912190722 47.41312240972865)");
-        query.add("corridor.point", "POINT(9.7435650410856 47.41262945960319)");
-        query.add("corridor.point", "POINT(9.743520075005302 47.41239211160078)");
-        query.add("corridor.point", "POINT(9.743520075005302 47.41177743616075)");
-        query.add("corridor.point", "POINT(9.743520075005302 47.41148531066436)");
-        query.add("corridor.point", "POINT(9.743520075005302 47.41122361353119)");
-        query.add("corridor.point", "POINT(9.743394169980473 47.40990293606566)");
-        query.add("corridor.point", "POINT(9.743349203900177 47.409142162123985)");
-        query.add("corridor.point", "POINT(9.743304237819881 47.40885002201029)");
-        query.add("corridor.point", "POINT(9.743304237819881 47.408588311782445)");
-        query.add("corridor.point", "POINT(9.743259271739586 47.408472671965164)");
-        query.add("corridor.point", "POINT(9.74321430565929 47.40788229630981)");
-        query.add("corridor.point", "POINT(9.743178332795052 47.40762058127347)");
-        query.add("corridor.point", "POINT(9.743088400634461 47.40712149318118)");
-        query.add("corridor.point", "POINT(9.742917529529336 47.40682934185967)");
-        query.add("corridor.point", "POINT(9.74265672626362 47.40648241006073)");
-        query.add("corridor.point", "POINT(9.742566794103027 47.406360679063425)");
-
-        QueryResponse response = infrastructureRule.getSolrClient().query(query);
-        assertEquals(1, response.getResults().getNumFound());
-        assertEquals("intersects3", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
     }
 
     @Before
@@ -498,43 +121,11 @@ public class TestDirection {
                 solrDocument.addField(SOLR_FIELD_ID, DOCUMENT_ID_3);
                 solrDocument.addField(SOLR_FIELD_GEO, "LINESTRING(16.235939027349787 48.37663444618723,16.23318976310952 48.37658634278413,16.230504871885614 48.37659881404117,16.229271055738764 48.37671640002863,16.227919222395258 48.37688743370746,16.226996542494135 48.37707271954446,16.226030947248773 48.37730788905878,16.22486150411828 48.37764282558259,16.223552586119013 48.37804902223988,16.222179295103388 48.37850509883475,16.220462681333856 48.37903243230421,16.219003559629755 48.37953125623426,16.217823387663202 48.3798946820197,16.215999485533075 48.38045050467305,16.215216280500726 48.3806785327239,16.214293600599603 48.3808709305973,16.212931038420038 48.3811132083664,16.211897835899208 48.381215440181734,16.210980520416115 48.381311638194695,16.209929094482277 48.38136508145665,16.20874900963679 48.38138289586484,16.20746691372767 48.38134370415858,16.206597878006846 48.38127957221058,16.20533821675963 48.381211877288884,16.203600145317978 48.38111567908741,16.202859855629868 48.38108005007777,16.201368547417587 48.381037295233284,16.200445867516464 48.38101235489075,16.199410534836716 48.38101235489075,16.19854686353392 48.38102304361048,16.19777975175566 48.381062235563604,16.19708774182982 48.38108005007777,16.19626698587126 48.381137056481236,16.19531748387999 48.38119762571497,16.194244600274033 48.381290260874195,16.193338013627 48.38138645874572,16.192452884652084 48.38151115941972,16.19159457776732 48.38161091973902,16.190700718812195 48.38173961258219,16.190024802140442 48.38185807740789,16.189413258485047 48.38195872775745,16.188078859500138 48.38220857134901,16.187422388843743 48.38236912081718,16.18672300284311 48.382522544177014,16.185351052931992 48.38287570562525,16.183979103020874 48.38331437059466,16.18261117642328 48.38386926523154,16.181388089112488 48.38452747109023,16.180641764454094 48.38500041212846,16.179959812812058 48.38550184952169,16.179385149530617 48.38604247009315,16.178810486249176 48.38657595988747,16.178221741357675 48.387353473396466,16.17770809831859 48.38817372391305,16.17729637922207 48.38904027171544,16.17712807060002 48.38945216619071,16.17689002454358 48.39015260178917)");
         infrastructureRule.getSolrClient().add(solrDocument);
-
-
-        solrDocument = new SolrInputDocument();
-        solrDocument.addField(SOLR_FIELD_ID, "wrong");
-        solrDocument.addField(SOLR_FIELD_GEO,"LINESTRING()");
-
-        infrastructureRule.getSolrClient().add(solrDocument);
-
-        solrDocument = new SolrInputDocument();
-        solrDocument.addField(SOLR_FIELD_ID, "id-no-geo");
-        infrastructureRule.getSolrClient().add(solrDocument);
         infrastructureRule.getSolrClient().commit(true, true);
     }
 
     @After
     public void tearDown() throws Exception {
         infrastructureRule.getSolrClient().deleteByQuery("*:*");
-    }
-
-
-    protected static String appendPointsAsCorridorPointGetLinestring(SolrQuery query, TestGeoPoint...geoPoints) {
-        if (geoPoints.length == 1) {
-            String pointString = "POINT(" + geoPoints[0] + ")";
-            query.add("corridor.point", pointString);
-            return pointString;
-        }
-
-        StringBuilder lineString = new StringBuilder("LINESTRING(");
-
-        for (TestGeoPoint geoPoint : geoPoints) {
-            String geoPointString = geoPoint.toString();
-            query.add("corridor.point", "POINT("+ geoPointString +")");
-            lineString.append(geoPointString);
-            lineString.append(',');
-        }
-        lineString.setCharAt(lineString.length()-1, ')');
-
-        return lineString.toString();
     }
 }

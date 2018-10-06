@@ -18,29 +18,19 @@ package com.indoqa.solr.spatial.corridor.direction;
 
 import java.util.List;
 
-import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.WKTReader;
 import org.apache.lucene.queries.function.ValueSource;
 
-public class AngleDistanceValueSourceParser extends DirectionValueSourceParser {
+public class DirectionDebugValueSourceParser extends DirectionValueSourceParser {
 
-    private final WKTReader wktReader;
-    private final GeometryFactory geometryFactory;
-
-    public AngleDistanceValueSourceParser() {
-        super();
-        this.wktReader = new WKTReader();
-        this.geometryFactory = new GeometryFactory();
-    }
-
+    @Override
     protected ValueSource createValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
         double pointsMaxDistanceToRoute) {
-        return new AngleDistanceValueSource(queryPoints, routeValueSource, routeHashValueSource, pointsMaxDistanceToRoute);
+        return new DirectionDebugValueSource(queryPoints, routeValueSource, routeHashValueSource, pointsMaxDistanceToRoute);
     }
 
+    @Override
     protected String getDescription() {
-        return "angleDistance()";
+        return "pointsDirectionDebug";
     }
-
 }

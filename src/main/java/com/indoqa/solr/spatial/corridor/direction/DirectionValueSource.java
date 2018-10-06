@@ -27,6 +27,8 @@ import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
 
+import com.indoqa.solr.spatial.corridor.debug.DebugValues;
+import com.indoqa.solr.spatial.corridor.debug.NoOpDebugValues;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
@@ -89,6 +91,10 @@ public class DirectionValueSource extends ValueSource {
     public final FunctionValues getValues(Map context, LeafReaderContext readerContext) throws IOException {
         FunctionValues locationValues = this.routeValueSource.getValues(context, readerContext);
         FunctionValues hashValues = this.routeHashValueSource.getValues(context, readerContext);
+        return this.getFunctionValues(locationValues, hashValues);
+    }
+
+    protected FunctionValues getFunctionValues(FunctionValues locationValues, FunctionValues hashValues) {
         return new InverseCorridorDocValues(this, locationValues, hashValues);
     }
 
@@ -103,23 +109,27 @@ public class DirectionValueSource extends ValueSource {
         return result;
     }
 
-    protected double getValue(LineString lineString) {
-        return AngleUtils.getAngleDifference(lineString, this.queryPoints, this.pointsMaxDistanceToRoute);
+    protected double getValue(DebugValues debugValues, LineString lineString) {
+        return AngleUtils.getAngleDifference(debugValues, lineString, this.queryPoints, this.pointsMaxDistanceToRoute);
     }
 
-    private final class InverseCorridorDocValues extends DoubleDocValues {
+    protected final class InverseCorridorDocValues extends DoubleDocValues {
 
         private FunctionValues routeValues;
         private FunctionValues hashValues;
+        private DebugValues debugValues;
 
         protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues) {
+            this(vs, routeValues, hashValues, NoOpDebugValues.NOOP_DEBUG_VALUES);
+        }
+        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues,
+            DebugValues debugValues) {
             super(vs);
 
             this.routeValues = routeValues;
             this.hashValues = hashValues;
+            this.debugValues = debugValues;
         }
-
-
 
         @Override
         public double doubleVal(int docId) {
@@ -128,12 +138,13 @@ public class DirectionValueSource extends ValueSource {
 
             try {
                 if (routeAsString == null || routeAsString.isEmpty()) {
+                    this.debugValues.add("routeAsString", "empty");
                     return -1;
                 }
 
                 LineString route = LineStringUtils.parseOrGet(routeAsString, routeAsHash);
 
-                return DirectionValueSource.this.getValue(route);
+                return DirectionValueSource.this.getValue(this.debugValues, route);
             } catch(Exception e){
                 LOGGER.error("Could not calculate value. | linestring={}", routeAsString, e);
             }
