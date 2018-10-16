@@ -59,6 +59,15 @@ public class InDirectionValueSourceParser extends ValueSourceParser {
         int percentageOfPointsWithinDistance = fp.getParams().getInt("corridor.percentageOfPointsWithinDistance", 100);
         boolean alwaysCheckPointDistancePercent = fp.getParams().getBool("corridor.alwaysCheckPointDistancePercent", false);
 
+        return createValueSource(queryPoints, routeValueSource, routeHashValueSource, maxAngleDifference, bidirectional,
+            maxAngleDifferenceAdditionalPointsCheck, pointsMaxDistanceToRoute, percentageOfPointsWithinDistance,
+            alwaysCheckPointDistancePercent);
+    }
+
+    protected ValueSource createValueSource(List<Point> queryPoints, LineStringValueSource routeValueSource,
+        ValueSource routeHashValueSource, double maxAngleDifference, boolean bidirectional,
+        double maxAngleDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute, int percentageOfPointsWithinDistance,
+        boolean alwaysCheckPointDistancePercent) {
         return new InDirectionValueSource(queryPoints, routeValueSource, routeHashValueSource, maxAngleDifference, bidirectional,
                 maxAngleDifferenceAdditionalPointsCheck, pointsMaxDistanceToRoute, percentageOfPointsWithinDistance,
                 alwaysCheckPointDistancePercent);

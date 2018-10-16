@@ -25,6 +25,7 @@ import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.junit.After;
 import org.junit.Before;
