@@ -16,14 +16,17 @@
  */
 package com.indoqa.solr.spatial.corridor.direction;
 
+import static com.indoqa.solr.spatial.corridor.direction.InDirectionUtils.*;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import com.indoqa.solr.spatial.corridor.debug.DebugValues;
 import com.indoqa.solr.spatial.corridor.debug.NoOpDebugValues;
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LinearLocation;
-import com.vividsolutions.jts.linearref.LocationIndexedLine;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
@@ -31,12 +34,6 @@ import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
 
 public class InDirectionValueSource extends ValueSource {
 
@@ -53,8 +50,8 @@ public class InDirectionValueSource extends ValueSource {
     protected boolean alwaysCheckPointDistancePercent;
 
     protected InDirectionValueSource(List<Point> queryPoints, ValueSource routeValueSource, ValueSource routeHashValueSource,
-            double maxDifference, boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
-            int percentageOfPointsWithinDistance, boolean alwaysCheckPointDistancePercent) {
+        double maxDifference, boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
+        int percentageOfPointsWithinDistance, boolean alwaysCheckPointDistancePercent) {
         this.queryPoints = queryPoints;
         this.routeValueSource = routeValueSource;
         this.routeHashValueSource = routeHashValueSource;
@@ -107,9 +104,14 @@ public class InDirectionValueSource extends ValueSource {
     }
 
     protected FunctionValues getFunctionValues(FunctionValues locationValues, FunctionValues hashValues) {
-        return new InverseCorridorDocValues(this, locationValues, hashValues,
-                this.maxDifference, this.bidirectional, this.maxDifferenceAdditionalPointsCheck, this.pointsMaxDistanceToRoute,
-                this.alwaysCheckPointDistancePercent);
+        return new InverseCorridorDocValues(this,
+            locationValues,
+            hashValues,
+            this.maxDifference,
+            this.bidirectional,
+            this.maxDifferenceAdditionalPointsCheck,
+            this.pointsMaxDistanceToRoute,
+            this.alwaysCheckPointDistancePercent);
     }
 
     protected double getValue(DebugValues debugValues, LineString lineString) {
@@ -138,17 +140,23 @@ public class InDirectionValueSource extends ValueSource {
         private boolean alwaysCheckPointDistancePercent;
         private DebugValues debugValues;
 
-        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues,
-            double maxDifference, boolean bidirectional,
-            double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
+        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues, double maxDifference,
+            boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
             boolean alwaysCheckPointDistancePercent) {
-            this(vs, routeValues, hashValues, maxDifference, bidirectional, maxDifferenceAdditionalPointsCheck,
-                pointsMaxDistanceToRoute, alwaysCheckPointDistancePercent, NoOpDebugValues.NOOP_DEBUG_VALUES);
+            this(vs,
+                routeValues,
+                hashValues,
+                maxDifference,
+                bidirectional,
+                maxDifferenceAdditionalPointsCheck,
+                pointsMaxDistanceToRoute,
+                alwaysCheckPointDistancePercent,
+                NoOpDebugValues.NOOP_DEBUG_VALUES);
         }
-        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues,
-                                           double maxDifference, boolean bidirectional,
-                                           double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
-                                           boolean alwaysCheckPointDistancePercent, DebugValues debugValues) {
+
+        protected InverseCorridorDocValues(ValueSource vs, FunctionValues routeValues, FunctionValues hashValues, double maxDifference,
+            boolean bidirectional, double maxDifferenceAdditionalPointsCheck, double pointsMaxDistanceToRoute,
+            boolean alwaysCheckPointDistancePercent, DebugValues debugValues) {
             super(vs);
 
             this.routeValues = routeValues;
@@ -160,8 +168,6 @@ public class InDirectionValueSource extends ValueSource {
             this.alwaysCheckPointDistancePercent = alwaysCheckPointDistancePercent;
             this.debugValues = debugValues;
         }
-
-
 
         @Override
         public double doubleVal(int docId) {
@@ -198,7 +204,7 @@ public class InDirectionValueSource extends ValueSource {
                 }
 
                 debugValues.add("maxDifferenceAdditionalPointsCheck", maxDifferenceAdditionalPointsCheck);
-                if (checkAngleDifferenceInFirstOrSecondQuadrant(difference, maxDifferenceAdditionalPointsCheck)){
+                if (checkAngleDifferenceInFirstOrSecondQuadrant(difference, maxDifferenceAdditionalPointsCheck)) {
                     debugValues.add("firstOrSecondQuadrant", true);
 
                     if (enoughPointsWithinDistance(route)) {
@@ -218,51 +224,19 @@ public class InDirectionValueSource extends ValueSource {
                 }
 
                 return 0;
-            } catch(Exception e){
+            } catch (Exception e) {
                 LOGGER.error("Could not calculate value. | linestring={}", routeAsString, e);
             }
             return Double.MAX_VALUE;
         }
 
         private boolean enoughPointsWithinDistance(LineString route) {
-            int percentageOfPointsWithinDistance = percentageOfPointsWithinDistanceTo(route);
+            int percentageOfPointsWithinDistance = percentageOfPointsWithinDistanceTo(
+                route,
+                queryPoints,
+                this.pointsMaxDistanceToRoute);
             this.debugValues.add("percentageOfPointsWithinDistance", percentageOfPointsWithinDistance);
             return percentageOfPointsWithinDistance >= percentageOfPointsWithinDistance;
-        }
-
-        private int percentageOfPointsWithinDistanceTo(LineString route) {
-            LocationIndexedLine lineRef = new LocationIndexedLine(route);
-
-            int result = 0;
-
-            for (Point point : queryPoints) {
-                LinearLocation loc = lineRef.project(point.getCoordinate());
-                Coordinate nearestPoint = lineRef.extractPoint(loc);
-
-                double distance = nearestPoint.distance( point.getCoordinate())* WGS84_TO_KILOMETERS_FACTOR;
-
-                if (distance <= this.pointsMaxDistanceToRoute) {
-                    result++;
-                }
-            }
-
-            return Double.valueOf((double) result / queryPoints.size() * 100).intValue();
-        }
-
-        private boolean checkAngleDifferenceInThirdOrFourthQuadrant(double actualDifference, double maxDifference) {
-            return actualDifference >= 180 - maxDifference && actualDifference <= 180 + maxDifference;
-        }
-
-        private boolean checkAngleDifferenceInFirstOrSecondQuadrant(double actualDifference, double maxDifference) {
-            if (actualDifference >= 360 - maxDifference && actualDifference <= 360) {
-                return true;
-            }
-
-            if (actualDifference >= 0 && actualDifference <= maxDifference) {
-                return true;
-            }
-
-            return false;
         }
     }
 }

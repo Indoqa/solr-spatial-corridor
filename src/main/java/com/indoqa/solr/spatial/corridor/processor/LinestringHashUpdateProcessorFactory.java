@@ -40,7 +40,6 @@ public class LinestringHashUpdateProcessorFactory extends UpdateRequestProcessor
 
     @Override
     public void init(NamedList args) {
-
         Object obj = args.remove("linestringFieldName");
         if (null == obj && null == linestringFieldName) {
             throw new SolrException

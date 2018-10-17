@@ -27,6 +27,7 @@
 
   <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" spatialContextFactory="com.spatial4j.core.context.jts.JtsSpatialContextFactory"
              geo="true" distErrPct="0.025" maxDistErr="0.000009" distanceUnits="degrees" />
+  <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
 
   <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
     <!--<analyzer type="index">-->
@@ -51,4 +52,9 @@
   <field name="geoHash" type="string" indexed="true" stored="true" multiValued="false" />
   <field name="geoGeom" type="location_rpt" indexed="true" stored="true" multiValued="false" />
 
+  <field name="geoPoints" type="location_rpt" indexed="true" stored="true" multiValued="true" />
+  <field name="geoDirection" type="text_general" indexed="true" stored="true" multiValued="false" />
+  <field name="latLon" type="location" indexed="true" stored="false" />
+  <field name="latLon_0_coordinate" type="double" indexed="true" stored="false" />
+  <field name="latLon_1_coordinate" type="double" indexed="true" stored="false" />
 </schema>

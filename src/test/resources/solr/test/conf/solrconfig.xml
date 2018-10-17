@@ -264,6 +264,7 @@
     <valueSourceParser name="inPointsDirection" class="com.indoqa.solr.spatial.corridor.direction.InDirectionValueSourceParser" />
     <valueSourceParser name="inPointsDirectionDebug" class="com.indoqa.solr.spatial.corridor.direction.InDirectionDebugValueSourceParser" />
     <valueSourceParser name="pointsDirectionDebug" class="com.indoqa.solr.spatial.corridor.direction.DirectionDebugValueSourceParser" />
+    <valueSourceParser name="inDirectionPoints" class="com.indoqa.solr.spatial.corridor.direction.InDirectionPointsValueSourceParser" />
 
     <updateRequestProcessorChain name="linestringHashCalculation" default="true">
       <processor class="com.indoqa.solr.spatial.corridor.processor.LinestringHashUpdateProcessorFactory">
