@@ -99,6 +99,7 @@
                         <exclude>**/bin/*</exclude>
                         <exclude>README.md</exclude>
                         <exclude>CONTRIBUTORS.txt</exclude>
+                        <exclude>CHANGELOG.md</exclude>
                         <exclude>**/_rest_managed.json</exclude>
                         <exclude>**/write.lock</exclude>
                         <exclude>**/core.properties</exclude>
