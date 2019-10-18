@@ -28,7 +28,7 @@
     <name>Solr Spatial Corridor Search</name>
 
     <properties>
-        <solr-version>6.6.2</solr-version>
+        <solr-version>8.2.0</solr-version>
         <jts-version>1.13</jts-version>
         <junit-version>4.10</junit-version>
     </properties>
