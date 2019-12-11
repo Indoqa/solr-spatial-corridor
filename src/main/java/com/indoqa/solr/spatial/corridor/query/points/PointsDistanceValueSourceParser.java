@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.apache.lucene.queries.function.ValueSource;
 
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Point;
 
 public class PointsDistanceValueSourceParser extends AbstractPointsQueryCorridorValueSourceParser {
 

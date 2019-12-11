@@ -18,7 +18,7 @@ package com.indoqa.solr.spatial.corridor.query.route;
 
 import org.apache.lucene.queries.function.ValueSource;
 
-import com.vividsolutions.jts.geom.LineString;
+import org.locationtech.jts.geom.LineString;
 
 public class RouteDistanceValueSourceParser extends AbstractRouteQueryValueSourceParser {
 

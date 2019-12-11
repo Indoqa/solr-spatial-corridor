@@ -16,6 +16,8 @@
  */
 package com.indoqa.solr.spatial.corridor.direction;
 
+import java.io.IOException;
+
 import com.indoqa.solr.spatial.corridor.debug.DebugValues;
 import com.indoqa.solr.spatial.corridor.debug.DebugValuesImpl;
 import org.apache.lucene.queries.function.ValueSource;
@@ -30,13 +32,13 @@ public abstract class DebugStrDocValues extends StrDocValues {
     }
 
     @Override
-    public String strVal(int doc) {
+    public String strVal(int doc) throws IOException {
         Number number = (Number) this.callFunctionValues(doc);
         debugValues.add("result", number);
         return this.debugValues.toJson();
     }
 
-    protected abstract Object callFunctionValues(int doc);
+    protected abstract Object callFunctionValues(int doc) throws IOException;
 
     protected DebugValues getDebugValues() {
         return this.debugValues;

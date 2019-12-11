@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
@@ -29,11 +29,11 @@ import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
 
 import com.indoqa.solr.spatial.corridor.debug.DebugValues;
 import com.indoqa.solr.spatial.corridor.debug.NoOpDebugValues;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LinearLocation;
-import com.vividsolutions.jts.linearref.LocationIndexedLine;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.linearref.LinearLocation;
+import org.locationtech.jts.linearref.LocationIndexedLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +132,7 @@ public class DirectionValueSource extends ValueSource {
         }
 
         @Override
-        public double doubleVal(int docId) {
+        public double doubleVal(int docId) throws IOException {
             String routeAsString = this.routeValues.strVal(docId);
             String routeAsHash = this.hashValues.strVal(docId);
 

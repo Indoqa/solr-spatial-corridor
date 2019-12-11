@@ -20,12 +20,12 @@ import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOME
 import static java.lang.Math.PI;
 
 import com.indoqa.solr.spatial.corridor.debug.DebugValues;
-import com.vividsolutions.jts.algorithm.Angle;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LinearLocation;
-import com.vividsolutions.jts.linearref.LocationIndexedLine;
+import org.locationtech.jts.algorithm.Angle;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.linearref.LinearLocation;
+import org.locationtech.jts.linearref.LocationIndexedLine;
 
 import java.util.Arrays;
 import java.util.List;

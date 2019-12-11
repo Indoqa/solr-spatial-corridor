@@ -17,6 +17,7 @@
 package com.indoqa.solr.spatial.corridor.direction;
 
 import static com.indoqa.solr.spatial.corridor.TestGeoPoint.geo;
+import static java.util.Locale.ROOT;
 import static org.junit.Assert.assertEquals;
 
 import java.awt.*;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import com.indoqa.solr.spatial.corridor.TestGeoPoint;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -172,7 +174,7 @@ public class TestDirection {
                 geo(16.19924945871867, 48.38101048422946),
                 geo(16.19694812338389, 48.38108174232117),
                 geo(16.192538571763407, 48.3814665342928));
-        query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
+        query.addFilterQuery(String.format(ROOT, "{!field f=geoGeom}Intersects(%s)", linestring));
         query.add("corridor.maxAngleDifference", "5");
         query.add("corridor.maxAngleDifferenceAdditionalPointsCheck", "80");
         query.add("corridor.pointsMaxDistanceToRoute", "0.01");
@@ -190,7 +192,7 @@ public class TestDirection {
                 geo(16.190306973863017, 48.38183350911145),
                 geo(16.177904439378153, 48.38779024485453),
                 geo(16.178333592820536, 48.38077889474244));
-        query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
+        query.addFilterQuery(String.format(ROOT, "{!field f=geoGeom}Intersects(%s)", linestring));
         query.add("corridor.maxAngleDifference", "5");
         query.add("corridor.maxAngleDifferenceAdditionalPointsCheck", "10");
         query.add("corridor.pointsMaxDistanceToRoute", "0.0001");

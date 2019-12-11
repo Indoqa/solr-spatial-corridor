@@ -16,7 +16,7 @@
  */
 package com.indoqa.solr.spatial.corridor.debug;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 public class NoOpDebugValues implements DebugValues {
 

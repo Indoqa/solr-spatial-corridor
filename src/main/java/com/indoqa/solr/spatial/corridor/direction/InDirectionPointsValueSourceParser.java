@@ -18,9 +18,9 @@ package com.indoqa.solr.spatial.corridor.direction;
 
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import com.indoqa.solr.spatial.corridor.LineStringValueSource;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.io.WKTReader;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.io.WKTReader;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.SyntaxError;

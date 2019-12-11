@@ -19,7 +19,7 @@ package com.indoqa.solr.spatial.corridor.debug;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Coordinate;
 
 public class DebugValuesImpl implements DebugValues {
 

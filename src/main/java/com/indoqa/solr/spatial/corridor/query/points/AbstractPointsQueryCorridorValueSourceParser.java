@@ -27,7 +27,7 @@ import org.apache.solr.search.FunctionQParser;
 import org.apache.solr.search.SyntaxError;
 import org.apache.solr.search.ValueSourceParser;
 
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Point;
 
 public abstract class AbstractPointsQueryCorridorValueSourceParser extends ValueSourceParser {
 

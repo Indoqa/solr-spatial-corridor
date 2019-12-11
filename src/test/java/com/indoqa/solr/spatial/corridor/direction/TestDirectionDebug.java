@@ -17,9 +17,11 @@
 package com.indoqa.solr.spatial.corridor.direction;
 
 import static com.indoqa.solr.spatial.corridor.TestGeoPoint.geo;
+import static java.util.Locale.ROOT;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import com.indoqa.solr.spatial.corridor.EmbeddedSolrInfrastructureRule;
 import com.indoqa.solr.spatial.corridor.TestGeoPoint;
@@ -83,7 +85,7 @@ public class TestDirectionDebug {
             geo(16.19924945871867, 48.38101048422946),
             geo(16.19694812338389, 48.38108174232117),
             geo(16.192538571763407, 48.3814665342928));
-        query.addFilterQuery(String.format("{!field f=geoGeom}Intersects(%s)", linestring));
+        query.addFilterQuery(String.format(ROOT, "{!field f=geoGeom}Intersects(%s)", linestring));
         query.addField("inPointsDirectionDebug:inPointsDirectionDebug(geo, geoHash)");
         query.addField("pointsDirectionDebug:pointsDirectionDebug(geo, geoHash)");
         query.addField(SOLR_FIELD_ID);

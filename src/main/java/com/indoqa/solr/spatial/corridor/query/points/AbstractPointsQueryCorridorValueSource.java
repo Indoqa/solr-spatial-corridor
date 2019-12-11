@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.lucene.queries.function.docvalues.DoubleDocValues;
 
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +106,7 @@ public abstract class AbstractPointsQueryCorridorValueSource extends ValueSource
         }
 
         @Override
-        public double doubleVal(int docId) {
+        public double doubleVal(int docId) throws IOException {
             String routeAsString = this.routeValues.strVal(docId);
             String routeAsHash = this.hashValues.strVal(docId);
 

@@ -19,12 +19,17 @@ package com.indoqa.solr.spatial.corridor;
 import java.io.IOException;
 import java.util.Collections;
 
+import com.indoqa.solr.spatial.corridor.query.points.AbstractPointsQueryCorridorValueSource;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LineStringFunctionValues extends FunctionValues {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineStringFunctionValues.class);
 
     private LeafReaderContext readerContext;
     private String fieldName;
@@ -58,7 +63,7 @@ public class LineStringFunctionValues extends FunctionValues {
 
             return field.stringValue();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not extract string value. | fieldName={}", this.fieldName, e);
         }
 
         return null;

@@ -16,9 +16,10 @@
  */
 package com.indoqa.solr.spatial.corridor.direction;
 
+import java.io.IOException;
 import java.util.List;
 
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Point;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
 
@@ -50,7 +51,7 @@ public class DirectionDebugValueSource extends DirectionValueSource {
         }
 
         @Override
-        protected Number callFunctionValues(int doc) {
+        protected Number callFunctionValues(int doc) throws IOException {
             return this.inverseCorridorDocValues.doubleVal(doc);
         }
     }

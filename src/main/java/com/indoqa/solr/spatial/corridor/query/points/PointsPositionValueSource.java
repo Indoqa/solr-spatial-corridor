@@ -22,10 +22,10 @@ import java.util.List;
 
 import org.apache.lucene.queries.function.ValueSource;
 
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.linearref.LinearLocation;
-import com.vividsolutions.jts.linearref.LocationIndexedLine;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.linearref.LinearLocation;
+import org.locationtech.jts.linearref.LocationIndexedLine;
 
 public class PointsPositionValueSource extends AbstractPointsQueryCorridorValueSource {
 

@@ -25,9 +25,9 @@ import java.util.Map;
 import com.indoqa.solr.spatial.corridor.LineStringUtils;
 import com.indoqa.solr.spatial.corridor.debug.DebugValues;
 import com.indoqa.solr.spatial.corridor.debug.NoOpDebugValues;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import org.apache.commons.lang.ObjectUtils;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Point;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.queries.function.FunctionValues;
 import org.apache.lucene.queries.function.ValueSource;
@@ -170,7 +170,7 @@ public class InDirectionValueSource extends ValueSource {
         }
 
         @Override
-        public double doubleVal(int docId) {
+        public double doubleVal(int docId) throws IOException {
             String routeAsString = this.routeValues.strVal(docId);
             String routeAsHash = this.hashValues.strVal(docId);
 

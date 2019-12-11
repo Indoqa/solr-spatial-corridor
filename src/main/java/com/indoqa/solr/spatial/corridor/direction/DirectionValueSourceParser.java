@@ -20,9 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.indoqa.solr.spatial.corridor.wkt.WktUtils;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import org.apache.commons.lang.StringUtils;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.queries.function.ValueSource;
 import org.apache.solr.schema.StrFieldSource;
 import org.apache.solr.search.FunctionQParser;
@@ -30,9 +30,9 @@ import org.apache.solr.search.SyntaxError;
 import org.apache.solr.search.ValueSourceParser;
 
 import com.indoqa.solr.spatial.corridor.LineStringValueSource;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 
 public class DirectionValueSourceParser extends ValueSourceParser {
 

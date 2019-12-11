@@ -18,7 +18,7 @@ package com.indoqa.solr.spatial.corridor.direction;
 
 import java.util.List;
 
-import com.vividsolutions.jts.geom.Point;
+import org.locationtech.jts.geom.Point;
 import org.apache.lucene.queries.function.ValueSource;
 
 public class DirectionDebugValueSourceParser extends DirectionValueSourceParser {
