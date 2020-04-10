@@ -1,3 +1,9 @@
+# v6.6.2-11 | 2020-04-17
+* Add circleDistance ValueSource
+
+# v8.3.1-0 | 2019-12-11
+* Support Solr 8.3 (include JTS 1.16)
+
 # v6.6.2-10 | 2018-12-03
 * Add inDirectionPoints ValueSource
 
