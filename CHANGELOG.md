@@ -1,3 +1,6 @@
+# v6.6.2-11 | 2018-12-03
+* Add circleDistance ValueSource
+
 # v6.6.2-10 | 2018-12-03
 * Add inDirectionPoints ValueSource
 

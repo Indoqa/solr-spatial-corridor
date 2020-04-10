@@ -256,6 +256,7 @@
        Multiple ValueSourceParsers can be registered by name, and then
        used as function names when using the "func" QParser.
     -->
+    <valueSourceParser name="circleDistance" class="com.indoqa.solr.spatial.corridor.query.circle.CircleDistanceValueSourceParser" />
     <valueSourceParser name="corridorDistance" class="com.indoqa.solr.spatial.corridor.query.route.RouteDistanceValueSourceParser" />
     <valueSourceParser name="corridorPosition" class="com.indoqa.solr.spatial.corridor.query.route.RoutePositionValueSourceParser" />
     <valueSourceParser name="pointsDistance"   class="com.indoqa.solr.spatial.corridor.query.points.PointsDistanceValueSourceParser" />
