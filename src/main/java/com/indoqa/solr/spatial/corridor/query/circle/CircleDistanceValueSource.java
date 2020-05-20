@@ -22,6 +22,7 @@ import java.util.List;
 
 import com.indoqa.solr.spatial.corridor.query.points.AbstractPointsQueryCorridorValueSource;
 import org.apache.lucene.queries.function.ValueSource;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 
@@ -48,10 +49,9 @@ public class CircleDistanceValueSource extends AbstractPointsQueryCorridorValueS
 
         double minDistance = Integer.MAX_VALUE;
 
-        double distance;
         for (Point point : this.getQueryPoints()) {
-            distance = lineString.distance(point.buffer(radius)) * WGS84_TO_KILOMETERS_FACTOR;
-            minDistance = Math.min(distance, minDistance);
+            Geometry buffer = point.buffer(radius / WGS84_TO_KILOMETERS_FACTOR);
+            minDistance = Math.min(lineString.distance(buffer) * WGS84_TO_KILOMETERS_FACTOR, minDistance);
         }
 
         return minDistance;

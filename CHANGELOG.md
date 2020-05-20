@@ -1,3 +1,6 @@
+# v6.6.2-12 | 2020-05-20
+* Fixed circleDistance radius (WGS84) conversion
+
 # v6.6.2-11 | 2020-04-17
 * Add circleDistance ValueSource
 
