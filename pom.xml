@@ -30,7 +30,7 @@
     <properties>
         <solr-version>8.3.1</solr-version>
         <jts-version>1.16.1</jts-version>
-        <junit-version>4.10</junit-version>
+        <junit-version>4.13.1</junit-version>
     </properties>
 
     <dependencies>
