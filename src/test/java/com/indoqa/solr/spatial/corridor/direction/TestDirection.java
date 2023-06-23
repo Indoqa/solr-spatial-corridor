@@ -313,7 +313,7 @@ public class TestDirection {
         query.setRows(Integer.MAX_VALUE);
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
-        assertEquals("intersects", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
+        assertEquals("intersects", response.getResults().get(0).getFieldValue(SOLR_FIELD_ID).toString());
     }
 
     @Test
@@ -436,7 +436,7 @@ public class TestDirection {
         query.setRows(Integer.MAX_VALUE);
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
-        assertEquals("intersects2", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
+        assertEquals("intersects2", response.getResults().get(0).getFieldValue(SOLR_FIELD_ID).toString());
     }
 
     @Test()
@@ -478,7 +478,7 @@ public class TestDirection {
 
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
-        assertEquals("intersects3", solrDocument.getFieldValue(SOLR_FIELD_ID).toString());
+        assertEquals("intersects3", response.getResults().get(0).getFieldValue(SOLR_FIELD_ID).toString());
     }
 
     @Before

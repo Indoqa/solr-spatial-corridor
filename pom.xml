@@ -28,8 +28,8 @@
     <name>Solr Spatial Corridor Search</name>
 
     <properties>
-        <solr-version>8.3.1</solr-version>
-        <jts-version>1.16.1</jts-version>
+        <solr-version>8.11.2</solr-version>
+        <jts-version>1.19.0</jts-version>
         <junit-version>4.10</junit-version>
     </properties>
 
@@ -41,12 +41,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial</artifactId>
-            <version>${solr-version}</version>
-            <scope>provided</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.lucene</groupId>-->
+<!--            <artifactId>lucene-spatial</artifactId>-->
+<!--            <version>${solr-version}</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.locationtech.jts</groupId>
@@ -64,7 +64,7 @@
         <dependency>
             <groupId>com.indoqa.solr</groupId>
             <artifactId>solr-spring-client</artifactId>
-            <version>8.2.0</version>
+            <version>8.11.2.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

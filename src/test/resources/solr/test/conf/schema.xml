@@ -25,7 +25,7 @@
   <fieldtype name="binary" class="solr.BinaryField" />
   <fieldType name="random" class="solr.RandomSortField" indexed="true" />
 
-  <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" spatialContextFactory="com.spatial4j.core.context.jts.JtsSpatialContextFactory"
+  <fieldType name="location_rpt" class="solr.SpatialRecursivePrefixTreeFieldType" spatialContextFactory="JTS"
              geo="true" distErrPct="0.025" maxDistErr="0.000009" distanceUnits="degrees" />
   <fieldType name="location" class="solr.LatLonType" subFieldSuffix="_coordinate"/>
 
@@ -54,6 +54,8 @@
 
   <field name="geoPoints" type="location_rpt" indexed="true" stored="true" multiValued="true" />
   <field name="geoDirection" type="text_general" indexed="true" stored="true" multiValued="false" />
+  <field name="geoShape" type="location_rpt" multiValued="false" indexed="true" stored="false" required="false" />
+
   <field name="latLon" type="location" indexed="true" stored="false" />
   <field name="latLon_0_coordinate" type="double" indexed="true" stored="false" />
   <field name="latLon_1_coordinate" type="double" indexed="true" stored="false" />

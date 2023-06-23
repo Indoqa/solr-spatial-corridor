@@ -39,7 +39,12 @@ public class RouteDistanceValueSource extends AbstractRouteQueryValueSource {
 
     @Override
     protected double getValue(Point point) {
-        LocationIndexedLine lineRef = new LocationIndexedLine(this.getLineString());
+        LineString lineString = this.getLineString();
+        if (point == null || lineString == null) {
+            return Double.MAX_VALUE;
+        }
+
+        LocationIndexedLine lineRef = new LocationIndexedLine(lineString);
         LinearLocation loc = lineRef.project(point.getCoordinate());
 
         Coordinate extractPoint = lineRef.extractPoint(loc);
