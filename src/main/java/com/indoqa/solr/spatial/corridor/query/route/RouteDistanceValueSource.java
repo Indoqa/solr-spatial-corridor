@@ -16,8 +16,7 @@
  */
 package com.indoqa.solr.spatial.corridor.query.route;
 
-import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
-
+import com.indoqa.solr.spatial.corridor.geo.GeoUtils;
 import org.apache.lucene.queries.function.ValueSource;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -48,7 +47,7 @@ public class RouteDistanceValueSource extends AbstractRouteQueryValueSource {
         LinearLocation loc = lineRef.project(point.getCoordinate());
 
         Coordinate extractPoint = lineRef.extractPoint(loc);
-        return extractPoint.distance(point.getCoordinate()) * WGS84_TO_KILOMETERS_FACTOR;
+        return GeoUtils.calculateDistanceInKilometers(extractPoint, point.getCoordinate());
     }
 
 }

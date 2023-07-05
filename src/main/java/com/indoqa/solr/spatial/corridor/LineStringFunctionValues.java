@@ -19,7 +19,6 @@ package com.indoqa.solr.spatial.corridor;
 import java.io.IOException;
 import java.util.Collections;
 
-import com.indoqa.solr.spatial.corridor.query.points.AbstractPointsQueryCorridorValueSource;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.LeafReaderContext;

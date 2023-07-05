@@ -38,7 +38,11 @@ public class RoutePositionValueSource extends AbstractRouteQueryValueSource {
 
     @Override
     protected double getValue(Point point) {
-        LocationIndexedLine indexedLineString = new LocationIndexedLine(this.getLineString());
+        LineString lineString = this.getLineString();
+        if (lineString == null || point == null) {
+            return Double.MAX_VALUE;
+        }
+        LocationIndexedLine indexedLineString = new LocationIndexedLine(lineString);
         LinearLocation intersection = indexedLineString.project(point.getCoordinate());
 
         LineString routeToIntersection = (LineString) indexedLineString.extractLine(indexedLineString.getStartIndex(), intersection);

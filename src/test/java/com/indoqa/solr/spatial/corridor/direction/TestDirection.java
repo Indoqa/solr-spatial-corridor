@@ -483,6 +483,8 @@ public class TestDirection {
 
     @Before
     public void setup() throws Exception {
+        infrastructureRule.getSolrClient().deleteByQuery("*:*");
+
         SolrInputDocument solrDocument = new SolrInputDocument();
         solrDocument.addField(SOLR_FIELD_ID, DOCUMENT_ID_1);
         solrDocument.addField(SOLR_FIELD_GEO,
@@ -518,7 +520,6 @@ public class TestDirection {
     public void tearDown() throws Exception {
         infrastructureRule.getSolrClient().deleteByQuery("*:*");
     }
-
 
     protected static String appendPointsAsCorridorPointGetLinestring(SolrQuery query, TestGeoPoint...geoPoints) {
         if (geoPoints.length == 1) {

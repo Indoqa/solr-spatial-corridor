@@ -16,10 +16,9 @@
  */
 package com.indoqa.solr.spatial.corridor.direction;
 
-import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
-
 import java.util.List;
 
+import com.indoqa.solr.spatial.corridor.geo.GeoUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -41,7 +40,7 @@ public class InDirectionUtils {
             LinearLocation loc = lineRef.project(point.getCoordinate());
             Coordinate nearestPoint = lineRef.extractPoint(loc);
 
-            double distance = nearestPoint.distance(point.getCoordinate()) * WGS84_TO_KILOMETERS_FACTOR;
+            double distance = GeoUtils.calculateDistanceInKilometers(nearestPoint, point.getCoordinate());
 
             if (distance <= pointsMaxDistanceToRoute) {
                 result++;

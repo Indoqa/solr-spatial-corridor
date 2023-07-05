@@ -16,10 +16,10 @@
  */
 package com.indoqa.solr.spatial.corridor.direction;
 
-import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
 import static java.lang.Math.PI;
 
 import com.indoqa.solr.spatial.corridor.debug.DebugValues;
+import com.indoqa.solr.spatial.corridor.geo.GeoUtils;
 import org.locationtech.jts.algorithm.Angle;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.LineString;
@@ -27,9 +27,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.linearref.LinearLocation;
 import org.locationtech.jts.linearref.LocationIndexedLine;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class AngleUtils {
 
@@ -98,7 +96,7 @@ public class AngleUtils {
 
         LinearLocation intersection = indexedLineString.project(queryCoordinate1);
 
-        double distance = intersection.getCoordinate(lineString).distance(queryCoordinate1) * WGS84_TO_KILOMETERS_FACTOR;
+        double distance = GeoUtils.calculateDistanceInKilometers(intersection.getCoordinate(lineString), queryCoordinate1);
         debugValues.addSingleAngleDifference("distance", distance);
 
         if (distance > maxDistance) {

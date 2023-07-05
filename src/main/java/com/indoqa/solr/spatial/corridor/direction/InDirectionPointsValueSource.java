@@ -23,6 +23,7 @@ import java.util.*;
 
 import com.indoqa.solr.spatial.corridor.debug.DebugValues;
 import com.indoqa.solr.spatial.corridor.debug.NoOpDebugValues;
+import com.indoqa.solr.spatial.corridor.wkt.WktUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
@@ -119,7 +120,10 @@ public class InDirectionPointsValueSource extends ValueSource {
             Scanner scanner = new Scanner(pointsAsString).useDelimiter(",");
             List<Point> points = new ArrayList<>();
 
-            boolean bidirectional = scanner.nextBoolean();
+            boolean bidirectional = false;
+            if (scanner.hasNextBoolean()) {
+                bidirectional = scanner.nextBoolean();
+            }
 
             while (scanner.hasNext()) {
                 String coordinateString = scanner.next().trim();

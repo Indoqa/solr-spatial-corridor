@@ -31,6 +31,7 @@
         <solr-version>8.11.2</solr-version>
         <jts-version>1.19.0</jts-version>
         <junit-version>4.10</junit-version>
+        <geo-tools-version>28.2</geo-tools-version>
     </properties>
 
     <dependencies>
@@ -41,18 +42,17 @@
             <scope>provided</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.lucene</groupId>-->
-<!--            <artifactId>lucene-spatial</artifactId>-->
-<!--            <version>${solr-version}</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>org.locationtech.jts</groupId>
             <artifactId>jts-core</artifactId>
             <version>${jts-version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.geographiclib</groupId>
+            <artifactId>GeographicLib-Java</artifactId>
+            <version>2.0</version>
         </dependency>
 
         <dependency>

@@ -16,10 +16,9 @@
  */
 package com.indoqa.solr.spatial.corridor.query.points;
 
-import static com.indoqa.solr.spatial.corridor.CorridorConstants.WGS84_TO_KILOMETERS_FACTOR;
-
 import java.util.List;
 
+import com.indoqa.solr.spatial.corridor.geo.GeoUtils;
 import org.apache.lucene.queries.function.ValueSource;
 
 import org.locationtech.jts.geom.Coordinate;
@@ -53,7 +52,7 @@ public class PointsDistanceValueSource extends AbstractPointsQueryCorridorValueS
             LinearLocation loc = lineRef.project(point.getCoordinate());
             Coordinate extractPoint = lineRef.extractPoint(loc);
 
-            double distance = extractPoint.distance(point.getCoordinate()) * WGS84_TO_KILOMETERS_FACTOR;
+            double distance = GeoUtils.calculateDistanceInKilometers(extractPoint, point.getCoordinate());
 
             minDistance = Math.min(distance, minDistance);
         }

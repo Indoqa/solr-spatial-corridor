@@ -61,7 +61,7 @@ public class TestDirectionPoints {
         QueryResponse response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
 
-        query.setQuery("{!corridor field=latLon buffer=0.5}");
+        query.setQuery("{!corridor field=latLon buffer=0.49}");
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
         assertEquals(DOCUMENT_ID_2, response.getResults().get(0).getFieldValue(SOLR_FIELD_ID));
@@ -92,15 +92,20 @@ public class TestDirectionPoints {
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
 
-        query.set("corridor.maxAngleDifference", String.valueOf(170));
+        query.set("corridor.maxAngleDifference", String.valueOf(160));
         query.set("corridor.pointsMaxDistanceToRoute", String.valueOf(1));
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(0, response.getResults().getNumFound());
 
-        query.set("corridor.maxAngleDifference", String.valueOf(180));
+        query.set("corridor.maxAngleDifference", String.valueOf(170));
         query.set("corridor.pointsMaxDistanceToRoute", String.valueOf(1));
         response = infrastructureRule.getSolrClient().query(query);
         assertEquals(1, response.getResults().getNumFound());
+
+        query.set("corridor.maxAngleDifference", String.valueOf(180));
+        query.set("corridor.pointsMaxDistanceToRoute", String.valueOf(1));
+        response = infrastructureRule.getSolrClient().query(query);
+        assertEquals(2, response.getResults().getNumFound());
     }
 
     @Before
