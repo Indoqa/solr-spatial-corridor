@@ -23,7 +23,7 @@
 
     <groupId>com.indoqa.solr</groupId>
     <artifactId>spatial-corridor</artifactId>
-    <version>8.3.1-1-SNAPSHOT</version>
+    <version>8.11.2.0</version>
 
     <name>Solr Spatial Corridor Search</name>
 
@@ -114,6 +114,6 @@
         <connection>scm:git:git@github.com:Indoqa/solr-spatial-corridor.git</connection>
         <developerConnection>scm:git:git@github.com:Indoqa/solr-spatial-corridor.git</developerConnection>
         <url>https://github.com/Indoqa/solr-spatial-corridor</url>
-        <tag>HEAD</tag>
+        <tag>spatial-corridor-8.11.2.0</tag>
     </scm>
 </project>
