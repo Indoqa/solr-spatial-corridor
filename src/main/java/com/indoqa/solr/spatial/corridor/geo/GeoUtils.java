@@ -37,5 +37,4 @@ public class GeoUtils {
         GeodesicData g = Geodesic.WGS84.Inverse(lat1, lon1, lat2, lon2);
         return g.s12;
     }
-
 }
