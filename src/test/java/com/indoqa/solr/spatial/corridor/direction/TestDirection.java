@@ -519,6 +519,7 @@ public class TestDirection {
     @After
     public void tearDown() throws Exception {
         infrastructureRule.getSolrClient().deleteByQuery("*:*");
+        infrastructureRule.getSolrClient().commit(true, true);
     }
 
     protected static String appendPointsAsCorridorPointGetLinestring(SolrQuery query, TestGeoPoint...geoPoints) {

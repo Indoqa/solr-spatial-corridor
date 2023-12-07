@@ -21,6 +21,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrInputDocument;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -122,5 +123,11 @@ public class TestInDirection {
         infrastructureRule.getSolrClient().add(solrDocument);
 
         infrastructureRule.getSolrClient().commit(true, true, true);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        infrastructureRule.getSolrClient().deleteByQuery("*:*");
+        infrastructureRule.getSolrClient().commit(true, true);
     }
 }

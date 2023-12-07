@@ -129,5 +129,6 @@ public class TestDirectionDebug {
     @After
     public void tearDown() throws Exception {
         infrastructureRule.getSolrClient().deleteByQuery("*:*");
+        infrastructureRule.getSolrClient().commit(true, true);
     }
 }

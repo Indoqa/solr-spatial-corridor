@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import com.indoqa.solr.spatial.corridor.EmbeddedSolrInfrastructureRule;
 import com.indoqa.solr.spatial.corridor.TestGeoPoint;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -148,5 +149,6 @@ public class TestDirectionPoints {
     @After
     public void tearDown() throws Exception {
         infrastructureRule.getSolrClient().deleteByQuery("*:*");
+        infrastructureRule.getSolrClient().commit(true, true);
     }
 }
